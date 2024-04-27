@@ -13,8 +13,13 @@ const GetStarted3 = () => {
   const navigation = useNavigation();
 
   const navigateToSignUp = () => {
-    // Redirect to Login.jsx
+    // Redirect to SignUp.jsx
     navigation.navigate("SignUp");
+  };
+
+  const navigateToLogin = () => {
+    // Redirect to Login.jsx
+    navigation.navigate("Login");
   };
 
   return (
@@ -47,7 +52,10 @@ const GetStarted3 = () => {
               S'inscrire
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity className="items-center mt-2">
+          <TouchableOpacity
+            className="items-center mt-2"
+            onPress={navigateToLogin}
+          >
             <Text className="text-secondary-green text-lg font-sansBold">
               J'ai déjà un compte
             </Text>

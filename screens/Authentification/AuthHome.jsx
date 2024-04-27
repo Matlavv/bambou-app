@@ -16,6 +16,11 @@ const AuthHome = () => {
     navigation.navigate("Login");
   };
 
+  const navigateToGetStarted = () => {
+    // Redirect to GetStarted1.jsx
+    navigation.navigate("GetStarted1");
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-primary-green">
       <View className="flex-1 justify-between items-center">
@@ -26,7 +31,10 @@ const AuthHome = () => {
         {/* Buttons container */}
         <View className="w-full px-10 pb-10">
           {/* Signup button redirect to Start road */}
-          <TouchableOpacity className="bg-primary-red py-4 rounded-full items-center mb-4">
+          <TouchableOpacity
+            className="bg-primary-red py-4 rounded-full items-center mb-4"
+            onPress={navigateToGetStarted}
+          >
             <Text className="text-primary-beige text-lg font-sans">
               Commencer
             </Text>

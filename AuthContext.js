@@ -10,13 +10,10 @@ export const AuthProvider = ({ children }) => {
 
   // Définition de la fonction signOut
   const signOut = () => {
-    firebaseSignOut(auth)
-      .then(() => {
-        console.log("Déconnexion réussie");
-      })
-      .catch((error) => {
-        console.error("Erreur lors de la déconnexion :", error);
-      });
+    firebaseSignOut(auth).then(() => {
+      console.log("Déconnexion réussie");
+      console.error("Erreur lors de la déconnexion :", error);
+    });
   };
 
   useEffect(() => {

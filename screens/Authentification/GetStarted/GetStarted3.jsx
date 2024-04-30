@@ -35,11 +35,11 @@ const GetStarted3 = () => {
             <View className="bg-gray-200 py-1 rounded-full px-3 opacity-70"></View>
           </View>
           <Text className="text-secondary-green text-2xl font-sans mt-10 px-20 text-center">
-            Prêt à relever le défi ?
+            Plus tu t'impliques, plus tu gagnes !
           </Text>
           <Text className="text-secondary-green text-xl font-sansBold mt-8 text-center px-4">
-            Découvre une multitude de façons de changer tes habitudes
-            écologiques pour agir concrètement pour la planète.
+            Remporte des récompenses ou fais des dons pour soutenir des causes
+            environnementales qui te tiennent à cœur.
           </Text>
         </View>
         {/* Bouton en bas */}

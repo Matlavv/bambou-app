@@ -1,5 +1,8 @@
-import { useNavigation } from "@react-navigation/native";
-import { getAuth, updateProfile } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  updateProfile,
+} from "firebase/auth";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
 import React, { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -8,35 +11,50 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const db = getFirestore();
 
 const SignUpName = ({ route }) => {
-  const navigation = useNavigation();
-  const { userId, email } = route.params;
+  const { email, password } = route.params;
   const [firstName, setFirstName] = useState("");
   const [username, setUsername] = useState("");
 
   const createAccount = () => {
     const auth = getAuth();
-    updateProfile(auth.currentUser, {
-      displayName: username,
-    })
-      .then(() => {
-        const userDoc = doc(db, "users", userId);
-        setDoc(userDoc, {
-          email: email,
-          firstName: firstName,
-          username: username,
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        // Une fois que l'utilisateur est créé, mets à jour son profil avec le prénom et le pseudonyme
+        updateProfile(user, {
+          displayName: username,
         })
           .then(() => {
-            navigation.navigate("Login");
+            // Une fois que le profil est mis à jour, ajoute les informations de l'utilisateur à la base de données
+            const userDoc = doc(db, "users", user.uid);
+            setDoc(userDoc, {
+              email: email,
+              firstName: firstName,
+              username: username,
+            })
+              .then(() => {
+                // Redirige l'utilisateur vers la page d'accueil
+                navigation.navigate("HomeScreen");
+              })
+              .catch((error) => {
+                console.error(
+                  "Erreur lors de l'enregistrement des données utilisateur :",
+                  error
+                );
+              });
           })
           .catch((error) => {
-            console.error(
-              "Erreur lors de l'enregistrement des données utilisateur :",
-              error
-            );
+            console.error("Erreur lors de la mise à jour du profil :", error);
           });
       })
       .catch((error) => {
-        console.error("Erreur lors de la mise à jour du profil :", error);
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // Gérer ici les erreurs de création d'utilisateur
+        console.error(
+          "Erreur lors de la création de l'utilisateur :",
+          errorMessage
+        );
       });
   };
 

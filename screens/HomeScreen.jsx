@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { Button, Text, View } from "react-native";
 import { AuthContext } from "../AuthContext";
+import { doc } from "firebase/firestore";
 
 const HomeScreen = () => {
   const { signOut } = useContext(AuthContext);

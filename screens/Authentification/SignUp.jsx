@@ -1,6 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -10,7 +9,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { app } from "../../firebaseConfig";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -21,7 +19,6 @@ const SignUp = () => {
   const [passwordError, setPasswordError] = useState("");
 
   const navigation = useNavigation();
-  const auth = getAuth(app);
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
@@ -29,20 +26,10 @@ const SignUp = () => {
 
   const navigateToSignUpName = () => {
     if (validateEmail() && validatePassword() && passwordsMatch()) {
-      createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          // Utilisateur créé, navigue vers la deuxième page d'inscription
-          navigation.navigate("SignUpName", {
-            userId: userCredential.user.uid,
-            email: email,
-          });
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          // Gérer ici les erreurs de création d'utilisateur
-          setPasswordError(errorMessage);
-        });
+      navigation.navigate("SignUpName", {
+        email: email,
+        password: password,
+      });
     }
   };
 

@@ -1,10 +1,28 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { app } from "../../firebaseConfig"; // Assure-toi que le chemin d'importation est correct
 
 const Login = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [error, setError] = useState("");
+  const navigation = useNavigation();
+  const auth = getAuth(app);
+
+  const handleLogin = () => {
+    signInWithEmailAndPassword(auth, username, password)
+      .then(() => {
+        navigation.navigate("HomeScreen"); // Assure-toi que 'HomeScreen' est le bon identifiant pour la route
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-primary-green">
@@ -15,15 +33,18 @@ const Login = () => {
         <Text className="text-xl text-primary-beige font-sansBold text-center mt-5">
           Connecte-toi à Bambou et réalise de nouvelles actions écolos !
         </Text>
+        {error ? <Text className="text-red-500">{error}</Text> : null}
       </View>
       <View className="flex bg-primary-beige h-full">
         <View className="items-center p-12">
           <Text className="text-primary-green font-sans text-lg self-start">
-            Pseudonyme
+            Pseudonyme ou email
           </Text>
           <TextInput
             className="font-sansBold w-80 bg-secondary-beige rounded-2xl p-4"
-            placeholder="Ton pseudo"
+            placeholder="Ton pseudo ou email"
+            value={username}
+            onChangeText={setUsername}
           />
           <Text className="text-primary-green font-sans text-lg self-start mt-5">
             Mot de passe
@@ -33,6 +54,8 @@ const Login = () => {
               className="flex-1 text-primary-green p-4 font-sansBold"
               placeholder="Ton mot de passe"
               secureTextEntry={!passwordVisible}
+              value={password}
+              onChangeText={setPassword}
             />
             <TouchableOpacity
               onPress={() => setPasswordVisible(!passwordVisible)}
@@ -45,17 +68,13 @@ const Login = () => {
               />
             </TouchableOpacity>
           </View>
-          <View className="w-80 mt-2 flex justify-end">
-            <TouchableOpacity>
-              <Text className="text-primary-green text-base font-sansBold text-right">
-                Mot de passe oublié ?
-              </Text>
-            </TouchableOpacity>
-          </View>
         </View>
         {/* Login button */}
         <View className="w-full px-12 pb-12 mt-52">
-          <TouchableOpacity className="bg-primary-yellow py-4 rounded-full items-center w-full">
+          <TouchableOpacity
+            className="bg-primary-yellow py-4 rounded-full items-center w-full"
+            onPress={handleLogin}
+          >
             <Text className="text-primary-beige text-lg font-sansBold">
               Se connecter
             </Text>

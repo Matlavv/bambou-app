@@ -6,9 +6,11 @@ import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import { AuthContext, AuthProvider } from "./AuthContext";
 import HomeScreen from "./screens/HomeScreen";
+import ArticlesStack from "./screens/Stacks/ArticlesStack";
 import AuthStack from "./screens/Stacks/AuthStack";
 import EventsStack from "./screens/Stacks/EventsStack";
 import GiftsStack from "./screens/Stacks/GiftsStack";
+import SocialStack from "./screens/Stacks/SocialStack";
 
 async function loadFonts() {
   await Font.loadAsync({
@@ -45,6 +47,10 @@ function AuthenticatedApp() {
             iconName = focused ? "gift" : "gift-outline";
           } else if (route.name === "Event") {
             iconName = focused ? "calendar" : "calendar-outline";
+          } else if (route.name === "Social") {
+            iconName = focused ? "apps" : "apps-outline";
+          } else if (route.name === "Articles") {
+            iconName = focused ? "newspaper" : "newspaper-outline";
           }
 
           return (
@@ -91,6 +97,8 @@ function AuthenticatedApp() {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Event" component={EventsStack} />
+      <Tab.Screen name="Social" component={SocialStack} />
+      <Tab.Screen name="Articles" component={ArticlesStack} />
       <Tab.Screen name="Gift" component={GiftsStack} />
     </Tab.Navigator>
   );

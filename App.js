@@ -41,7 +41,7 @@ function AuthenticatedApp() {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-          if (route.name === "Home") {
+          if (route.name === "HomeScreen") {
             iconName = focused ? "home" : "home-outline";
           } else if (route.name === "Gift") {
             iconName = focused ? "gift" : "gift-outline";
@@ -95,7 +95,7 @@ function AuthenticatedApp() {
         ],
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="HomeScreen" component={HomeScreen} />
       <Tab.Screen name="Event" component={EventsStack} />
       <Tab.Screen name="Social" component={SocialStack} />
       <Tab.Screen name="Articles" component={ArticlesStack} />

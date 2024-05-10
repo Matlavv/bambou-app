@@ -1,4 +1,5 @@
-import React, { useContext } from "react";
+import { useNavigation } from "@react-navigation/native";
+import React from "react";
 import {
   Image,
   SafeAreaView,
@@ -7,7 +8,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { AuthContext } from "../AuthContext";
 import { panda_strong } from "../assets";
 import DailyChallenges from "../components/Badges/DailyChallenges";
 import ProfilePic from "../components/Badges/ProfilePic";
@@ -16,7 +16,15 @@ import LastArticles from "../components/Sections/LastArticles";
 import UpcomingEvents from "../components/Sections/UpcomingEvents";
 
 const HomeScreen = () => {
-  const { signOut } = useContext(AuthContext);
+  const navigation = useNavigation();
+
+  const navigateToEvents = () => {
+    navigation.navigate("Event");
+  };
+
+  const navigateToArticles = () => {
+    navigation.navigate("Articles");
+  };
 
   return (
     <SafeAreaView className="flex-1">
@@ -62,7 +70,10 @@ const HomeScreen = () => {
           </Text>
           <UpcomingEvents />
           <View className="flex justify-center items-center mt-5">
-            <TouchableOpacity className="bg-primary-yellow p-3 px-6 flex items-center rounded-full">
+            <TouchableOpacity
+              className="bg-primary-yellow p-3 px-6 flex items-center rounded-full"
+              onPress={navigateToEvents}
+            >
               <Text className="font-sans text-lg text-primary-beige">
                 Voir tous les événements
               </Text>
@@ -74,7 +85,10 @@ const HomeScreen = () => {
             </Text>
             <LastArticles />
             <View className="flex justify-center items-center mt-7 mb-10">
-              <TouchableOpacity className="bg-primary-yellow p-3 px-6 flex items-center rounded-full">
+              <TouchableOpacity
+                className="bg-primary-yellow p-3 px-6 flex items-center rounded-full"
+                onPress={navigateToArticles}
+              >
                 <Text className="font-sans text-lg text-primary-beige">
                   Voir tous les articles
                 </Text>

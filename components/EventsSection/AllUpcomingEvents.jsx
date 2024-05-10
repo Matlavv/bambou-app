@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
-import { Image, ScrollView, Text, View } from "react-native";
+import React, { useState } from "react";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { profilePic } from "../../assets";
+import GetEventsDetailsModal from "../../screens/Events/GetEventsDetailsModal";
 
 const data = [
   {
@@ -9,22 +10,50 @@ const data = [
     title: "Ramassage de caca",
     date: "Dimanche 28 avril de 12h à 17h",
     location: "Antibes, France",
+    participants: "26",
+    organisator: "Pierre Dupont",
+    address: "12 rue des fleurs, 06600 Antibes",
+    latitude: 43.5804,
+    longitude: 7.1236,
   },
+
   {
     id: 2,
     title: "Plantation d'arbres",
     date: "Samedi 27 avril de 17h à 19h",
     location: "Narbonne, France",
+    participants: "100",
+    organisator: "Pierre Dupont",
+    address: "12 rue des fleurs, 06600 Antibes",
+    latitude: 43.5804,
+    longitude: 7.1236,
   },
   {
     id: 3,
     title: "Nettoyage de plage",
     date: "Dimanche 28 avril de 9h à 12h",
     location: "Narbonne, France",
+    participants: "1500",
+    organisator: "Pierre Dupont",
+    address: "12 rue des fleurs, 06600 Antibes",
+    latitude: 43.5804,
+    longitude: 7.1236,
   },
 ];
 
-const AllUpcomingEvents = () => {
+function AllUpcomingEvents() {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  const openModal = (event) => {
+    setSelectedEvent(event);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
   const getBackgroundColor = (index) => {
     switch (index) {
       case 0:
@@ -41,9 +70,12 @@ const AllUpcomingEvents = () => {
   return (
     <ScrollView className="mt-5">
       {data.map((event, index) => (
-        <View
+        <TouchableOpacity
           key={event.id}
-          className={`${getBackgroundColor(index)} m-3 mx-5 p-4 rounded-xl`}
+          className={`${getBackgroundColor(
+            index
+          )} m-3 mx-5 p-4 rounded-xl mt-5`}
+          onPress={() => openModal(event)}
         >
           <Text className="text-primary-beige font-sans text-2xl">
             {event.title}
@@ -88,10 +120,17 @@ const AllUpcomingEvents = () => {
               <Ionicons name="bookmark-outline" size={24} color="#FF8F00" />
             </View>
           </View>
-        </View>
+        </TouchableOpacity>
       ))}
+      {selectedEvent && (
+        <GetEventsDetailsModal
+          visible={modalVisible}
+          onRequestClose={closeModal}
+          event={selectedEvent}
+        />
+      )}
     </ScrollView>
   );
-};
+}
 
 export default AllUpcomingEvents;

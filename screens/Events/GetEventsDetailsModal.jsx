@@ -14,12 +14,11 @@ import MapView from "react-native-maps";
 import { profilePic } from "../../assets";
 import InviteYourFriends from "../../components/Sections/InviteYourFriends";
 
-const JoinEventsModal = ({ visible, onRequestClose, event }) => {
+const GetEventsDetailsModal = ({ visible, onRequestClose, event }) => {
   const navigation = useNavigation();
 
-  const navigateToRegisterConfirmation = () => {
-    onRequestClose();
-    navigation.navigate("EventRegisterConfirmation");
+  const navigateToEventCancel = () => {
+    navigation.navigate("EventCancel");
   };
 
   return (
@@ -128,12 +127,21 @@ const JoinEventsModal = ({ visible, onRequestClose, event }) => {
           </View>
           <InviteYourFriends />
           <View className="flex justify-center items-center mt-7 mb-10">
+            <TouchableOpacity className="flex-row items-center justify-center bg-primary-yellow p-3 px-6 rounded-full w-5/6">
+              <Text className="font-sans text-lg text-primary-beige mr-2">
+                Je récupère mes points !
+              </Text>
+              <Ionicons name="qr-code-outline" size={24} color="#FFF0E1" />
+            </TouchableOpacity>
             <TouchableOpacity
-              className="flex items-center justify-center bg-primary-yellow p-3 px-6 rounded-full w-5/6"
-              onPress={navigateToRegisterConfirmation}
+              className="mt-4"
+              onPress={() => {
+                onRequestClose();
+                navigateToEventCancel();
+              }}
             >
-              <Text className="font-sans text-lg text-primary-beige">
-                Je participe !
+              <Text className="text-primary-yellow text-xl font-sansBold">
+                Je ne veux plus participer
               </Text>
             </TouchableOpacity>
           </View>
@@ -143,4 +151,4 @@ const JoinEventsModal = ({ visible, onRequestClose, event }) => {
   );
 };
 
-export default JoinEventsModal;
+export default GetEventsDetailsModal;

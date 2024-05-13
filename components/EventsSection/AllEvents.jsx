@@ -73,10 +73,6 @@ function AllEvents() {
     setCreateModalVisible(false);
   };
 
-  const navigateToCreateEvent = () => {
-    navigation.navigate("CreateEvent");
-  };
-
   const getBackgroundColor = (index) => {
     switch (index) {
       case 0:

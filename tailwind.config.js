@@ -17,7 +17,7 @@ module.exports = {
       },
       colors: {
         "primary-beige": "#FFF0E1",
-        "secondary-beige": "#EAD4C1",
+        "secondary-beige": "#F2DCC8",
         "primary-green": "#005B41",
         "secondary-green": "#013D28",
         "primary-yellow": "#FF8F00",

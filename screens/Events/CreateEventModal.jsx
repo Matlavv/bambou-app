@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { Picker } from "@react-native-picker/picker";
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
 import {
@@ -10,7 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import SelectDropdown from "react-native-select-dropdown";
 
 const CreateEventModal = ({ visible, onRequestClose }) => {
   const [accessibility, setAccessibility] = useState("oui");
@@ -36,7 +36,7 @@ const CreateEventModal = ({ visible, onRequestClose }) => {
           >
             <Ionicons name="close" size={42} color="#005B41" />
           </TouchableOpacity>
-          <Text className="text-4xl text-primary-green font-wakBold mt-10 mx-4">
+          <Text className="text-4xl text-primary-green font-wakBold mt-10 mx-4 ">
             Créer un événement
           </Text>
           {/* Form */}
@@ -45,49 +45,71 @@ const CreateEventModal = ({ visible, onRequestClose }) => {
               Nom de l'événement
             </Text>
             <TextInput
-              className="bg-secondary-beige p-2 rounded-xl text-primary-green font-sansBold my-1"
+              className="bg-secondary-beige p-2 rounded-xl text-primary-green font-sansBold my-1 text-lg"
               placeholder="Nom"
             />
             <Text className="text-xl text-primary-green font-sans mt-5">
               Type d'événement
             </Text>
-            <SelectDropdown
-              data={["Type 1", "Type 2"]}
-              onSelect={(selectedItem, index) => {
-                setEventType(selectedItem);
-              }}
-              buttonTextAfterSelection={(selectedItem, index) => {
-                return selectedItem;
-              }}
-              rowTextForSelection={(item, index) => {
-                return item;
-              }}
-            />
+            <View className="bg-secondary-beige rounded-xl mt-2">
+              <Picker
+                selectedValue={eventType}
+                onValueChange={(itemValue, itemIndex) =>
+                  setEventType(itemValue)
+                }
+                style={{ color: "#005B41" }}
+              >
+                <Picker.Item
+                  label="Collecte de dechets"
+                  value="Collecte de dechets"
+                />
+                <Picker.Item
+                  label="Nettoyage d'espace public"
+                  value="Nettoyage d'espace public"
+                />
+                <Picker.Item
+                  label="Sensibilisation au recyclage"
+                  value="Sensibilisation au recyclage"
+                />
+              </Picker>
+            </View>
             <Text className="text-xl text-primary-green font-sans mt-5">
               Date et heure
             </Text>
             <TextInput
-              className="bg-secondary-beige p-2 rounded-xl text-primary-green font-sansBold my-1"
+              className="bg-secondary-beige p-2 rounded-xl text-primary-green font-sansBold my-1 text-lg"
               placeholder="Date et heure"
             />
             <Text className="text-xl text-primary-green font-sans mt-5">
               Lieu
             </Text>
             <TextInput
-              className="bg-secondary-beige p-2 rounded-xl text-primary-green font-sansBold my-1"
+              className="bg-secondary-beige p-2 rounded-xl text-primary-green font-sansBold my-1 text-lg"
               placeholder="Rechercher une ville"
             />
             <Text className="text-xl text-primary-green font-sans mt-5">
               Description
             </Text>
             <TextInput
-              className="bg-secondary-beige p-2 rounded-xl text-primary-green font-sansBold my-1 h-28"
+              className="bg-secondary-beige p-2 rounded-xl text-primary-green font-sansBold my-1 h-28 text-lg"
               placeholder="Dis nous en plus sur l'événement !"
               textAlignVertical="top"
             />
             <Text className="text-xl text-primary-green font-sans mt-5">
               Accessible aux personnes en situation de handicap ?
             </Text>
+            <View className="bg-secondary-beige rounded-xl mt-2">
+              <Picker
+                selectedValue={accessibility}
+                onValueChange={(itemValue, itemIndex) =>
+                  setAccessibility(itemValue)
+                }
+                style={{ color: "#005B41" }}
+              >
+                <Picker.Item label="Oui" value="Oui" />
+                <Picker.Item label="Non" value="Non" />
+              </Picker>
+            </View>
           </View>
           <TouchableOpacity
             className="bg-primary-yellow p-4 rounded-full my-7 mx-4"

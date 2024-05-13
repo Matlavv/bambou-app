@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
 import {
   Image,
@@ -9,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { profilePic } from "../../assets";
+import CreateEventModal from "../../screens/Events/CreateEventModal";
 import JoinEventsModal from "../../screens/Events/JoinEventsModal";
 
 const data = [
@@ -50,7 +52,9 @@ const data = [
 
 function AllEvents() {
   const [modalVisible, setModalVisible] = useState(false);
+  const [createModalVisible, setCreateModalVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const navigation = useNavigation();
 
   const openModal = (event) => {
     setSelectedEvent(event);
@@ -59,6 +63,18 @@ function AllEvents() {
 
   const closeModal = () => {
     setModalVisible(false);
+  };
+
+  const openCreateModal = () => {
+    setCreateModalVisible(true);
+  };
+
+  const closeCreateModal = () => {
+    setCreateModalVisible(false);
+  };
+
+  const navigateToCreateEvent = () => {
+    navigation.navigate("CreateEvent");
   };
 
   const getBackgroundColor = (index) => {
@@ -86,7 +102,12 @@ function AllEvents() {
           <Ionicons name="search" size={24} color="#005B41" />
         </View>
         <TouchableOpacity className="p-4 bg-primary-green rounded-full">
-          <Ionicons name="add" size={24} color="#FFF0E1" />
+          <Ionicons
+            name="add"
+            size={24}
+            color="#FFF0E1"
+            onPress={openCreateModal}
+          />
         </TouchableOpacity>
         <TouchableOpacity className="p-4 bg-primary-yellow rounded-full mx-1">
           <Ionicons name="bookmark-outline" size={24} color="#FFF0E1" />
@@ -153,6 +174,10 @@ function AllEvents() {
           event={selectedEvent}
         />
       )}
+      <CreateEventModal
+        visible={createModalVisible}
+        onRequestClose={closeCreateModal}
+      />
     </ScrollView>
   );
 }

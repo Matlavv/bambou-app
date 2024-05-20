@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Profile from "../Stacks/ProfileStack";
+import Profil from "../Profile/Profile";
 
 const stack = createNativeStackNavigator();
 
@@ -10,7 +10,7 @@ const ProfileStack = () => {
         headerShown: false,
       }}
     >
-      <stack.Screen name="Profile" component={Profile} />
+      <stack.Screen name="Profil" component={Profil} />
     </stack.Navigator>
   );
 };

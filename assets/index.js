@@ -1,6 +1,11 @@
 import article1 from "./img/ARTICLE-COVER1.png";
 import article2 from "./img/ARTICLE-COVER2.png";
 import article3 from "./img/ARTICLE-COVER3.png";
+import badge_leaf from "./img/badge_leaf.png";
+import badge_plastic_bottle from "./img/badge_plastic_bottle.png";
+import badge_recycle_bag from "./img/badge_recycle_bag.png";
+import badge_save_the_earth from "./img/badge_save_the_earth.png";
+import badge_tree from "./img/badge_tree.png";
 import bambooCoins from "./img/bambooCoins.png";
 import carrefour from "./img/carrefour.png";
 import credits from "./img/credits.png";
@@ -20,6 +25,11 @@ export {
   article1,
   article2,
   article3,
+  badge_leaf,
+  badge_plastic_bottle,
+  badge_recycle_bag,
+  badge_save_the_earth,
+  badge_tree,
   bambooCoins,
   carrefour,
   credits,

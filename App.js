@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as Font from "expo-font";
 import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
@@ -10,6 +11,7 @@ import ArticlesStack from "./screens/Stacks/ArticlesStack";
 import AuthStack from "./screens/Stacks/AuthStack";
 import EventsStack from "./screens/Stacks/EventsStack";
 import GiftsStack from "./screens/Stacks/GiftsStack";
+import ProfileStack from "./screens/Stacks/ProfileStack";
 import SocialStack from "./screens/Stacks/SocialStack";
 
 async function loadFonts() {
@@ -24,6 +26,7 @@ async function loadFonts() {
 }
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
 const MyTheme = {
   ...DefaultTheme,
@@ -56,14 +59,14 @@ function AuthenticatedApp() {
           return (
             <View
               style={{
-                width: 40, // Taille du cercle autour de l'icône
+                width: 40,
                 height: 40,
                 justifyContent: "center",
                 alignItems: "center",
                 borderRadius: 20,
                 backgroundColor: focused
                   ? MyTheme.colors.primaryGreen
-                  : "transparent", // Cercle vert autour lors de la sélection
+                  : "transparent",
               }}
             >
               <Ionicons
@@ -104,6 +107,15 @@ function AuthenticatedApp() {
   );
 }
 
+function MainNavigator() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="AuthenticatedApp" component={AuthenticatedApp} />
+      <Stack.Screen name="Profile" component={ProfileStack} />
+    </Stack.Navigator>
+  );
+}
+
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
@@ -124,7 +136,7 @@ export default function App() {
       <NavigationContainer theme={MyTheme}>
         <AuthContext.Consumer>
           {({ isAuthenticated }) =>
-            isAuthenticated ? <AuthenticatedApp /> : <AuthStack />
+            isAuthenticated ? <MainNavigator /> : <AuthStack />
           }
         </AuthContext.Consumer>
       </NavigationContainer>

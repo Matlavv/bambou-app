@@ -10,6 +10,7 @@ import logo from "./img/logo.png";
 import panda_crying_baby from "./img/panda_crying_baby.png";
 import panda_enjoy from "./img/panda_enjoy.png";
 import panda_idea from "./img/panda_idea.png";
+import panda_please from "./img/panda_please.png";
 import panda_strong from "./img/panda_strong.png";
 import profilePic from "./img/profilePic.png";
 import save_the_earth from "./img/save_the_earth.png";
@@ -28,6 +29,7 @@ export {
   panda_crying_baby,
   panda_enjoy,
   panda_idea,
+  panda_please,
   panda_strong,
   profilePic,
   save_the_earth,

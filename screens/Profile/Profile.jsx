@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import {
   Image,
@@ -14,11 +15,19 @@ import MyPosts from "../../components/ProfileSection/MyPosts";
 
 const Profile = () => {
   const Tab = createMaterialTopTabNavigator();
+  const navigation = useNavigation();
+
+  const navigateToSettings = () => {
+    navigation.navigate("Settings");
+  };
 
   return (
     <SafeAreaView className="flex-1">
       <View className="bg-primary-green h-2/5">
-        <TouchableOpacity className="absolute right-2 top-6 m-4">
+        <TouchableOpacity
+          className="absolute right-2 top-6 m-4"
+          onPress={navigateToSettings}
+        >
           <Ionicons name="settings-outline" size={32} color="white" />
         </TouchableOpacity>
         <View className="flex-row mt-24 mx-4">

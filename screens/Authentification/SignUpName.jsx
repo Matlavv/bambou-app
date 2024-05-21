@@ -50,7 +50,6 @@ const SignUpName = ({ route }) => {
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        // Gérer ici les erreurs de création d'utilisateur
         console.error(
           "Erreur lors de la création de l'utilisateur :",
           errorMessage

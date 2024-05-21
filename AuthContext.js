@@ -8,12 +8,17 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Définition de la fonction signOut
+  // fonction de déconnexion
   const signOut = () => {
-    firebaseSignOut(auth).then(() => {
-      console.log("Déconnexion réussie");
-      console.error("Erreur lors de la déconnexion :", error);
-    });
+    firebaseSignOut(auth)
+      .then(() => {
+        console.log("Déconnexion réussie");
+        setCurrentUser(null); // Réinitialiser l'utilisateur après la déconnexion
+        setIsAuthenticated(false); // Réinitialiser l'état d'authentification
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la déconnexion :", error);
+      });
   };
 
   useEffect(() => {

@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { useNavigation } from "@react-navigation/native";
-import React from "react";
+import { getAuth } from "firebase/auth";
+import { doc, getDoc, getFirestore } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -12,10 +14,35 @@ import {
 import { bambooCoins, profilePic } from "../../assets";
 import MyBadges from "../../components/ProfileSection/MyBadges";
 import MyPosts from "../../components/ProfileSection/MyPosts";
+import { app } from "../../firebaseConfig";
 
 const Profile = () => {
   const Tab = createMaterialTopTabNavigator();
   const navigation = useNavigation();
+  const [userProfilePic, setUserProfilePic] = useState(null);
+  const [username, setUsername] = useState("john_doe"); // valeur par défaut
+  const [email, setEmail] = useState("");
+
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const user = auth.currentUser;
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user) {
+        const userDoc = doc(db, "users", user.uid);
+        const userSnapshot = await getDoc(userDoc);
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          setUserProfilePic(userData.profilePic || profilePic);
+          setUsername(userData.username);
+          setEmail(userData.email);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
 
   const navigateToSettings = () => {
     navigation.navigate("Settings");
@@ -32,13 +59,13 @@ const Profile = () => {
         </TouchableOpacity>
         <View className="flex-row mt-24 mx-4">
           <Image
-            source={profilePic}
+            source={userProfilePic ? { uri: userProfilePic } : profilePic}
             className="w-24 h-24 rounded-full"
             alt="profile pic"
           />
           <View className="m-4">
             <Text className="text-primary-beige font-sans text-2xl">
-              john_doe
+              {username}
             </Text>
             <View className="flex-row items-center mt-2">
               <Text className="text-primary-beige font-sansBold text-lg">

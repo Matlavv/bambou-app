@@ -4,7 +4,7 @@ import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { app } from "../../firebaseConfig"; // Assure-toi que le chemin d'importation est correct
+import { app } from "../../firebaseConfig";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -17,10 +17,10 @@ const Login = () => {
   const handleLogin = () => {
     signInWithEmailAndPassword(auth, username, password)
       .then(() => {
-        navigation.navigate("HomeScreen"); // Assure-toi que 'HomeScreen' est le bon identifiant pour la route
+        navigation.navigate("AuthenticatedApp");
       })
       .catch((error) => {
-        setError(error.message);
+        setError("Identifiants ou mot de passe incorrects");
       });
   };
 
@@ -33,7 +33,9 @@ const Login = () => {
         <Text className="text-xl text-primary-beige font-sansBold text-center mt-5">
           Connecte-toi à Bambou et réalise de nouvelles actions écolos !
         </Text>
-        {error ? <Text className="text-red-500">{error}</Text> : null}
+        {error ? (
+          <Text className="text-red-500 mt-4 text-base">{error}</Text>
+        ) : null}
       </View>
       <View className="flex bg-primary-beige h-full">
         <View className="items-center p-12">

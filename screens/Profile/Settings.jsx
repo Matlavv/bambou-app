@@ -65,6 +65,10 @@ const Settings = () => {
     navigation.navigate("EditPassword");
   };
 
+  const navigateToEditBiography = () => {
+    navigation.navigate("EditBiography");
+  };
+
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -171,6 +175,15 @@ const Settings = () => {
                 {user.email}
               </Text>
             </View>
+            <Ionicons name="chevron-forward" size={24} color="#005B41" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="flex bg-secondary-beige p-3 rounded-2xl mt-2 flex-row justify-between items-center"
+            onPress={navigateToEditBiography}
+          >
+            <Text className="text-primary-green ml-2 text-lg font-sans">
+              Bio
+            </Text>
             <Ionicons name="chevron-forward" size={24} color="#005B41" />
           </TouchableOpacity>
           <TouchableOpacity

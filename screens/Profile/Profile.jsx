@@ -20,8 +20,12 @@ const Profile = () => {
   const Tab = createMaterialTopTabNavigator();
   const navigation = useNavigation();
   const [userProfilePic, setUserProfilePic] = useState(null);
-  const [username, setUsername] = useState("john_doe"); // valeur par défaut
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [credits, setCredits] = useState(0);
+  const [donations, setDonations] = useState(0);
+  const [participations, setParticipations] = useState(0);
+  const [biography, setBiography] = useState("");
 
   const auth = getAuth(app);
   const db = getFirestore(app);
@@ -36,6 +40,10 @@ const Profile = () => {
         setUserProfilePic(userData.profilePic || profilePic);
         setUsername(userData.username);
         setEmail(userData.email);
+        setCredits(userData.credits);
+        setDonations(userData.donations);
+        setParticipations(userData.participations);
+        setBiography(userData.biography);
       }
     }
   }, [user, db]);
@@ -84,7 +92,7 @@ const Profile = () => {
         <View className="flex-row justify-around mt-4 m-2">
           <View className="flex-row items-center justify-center bg-primary-yellow rounded-2xl px-3 py-1 mx-1 flex-1">
             <Text className="font-wakExtraBold text-3xl text-primary-beige">
-              150
+              {credits}
             </Text>
             <Image
               source={bambooCoins}
@@ -94,7 +102,7 @@ const Profile = () => {
           </View>
           <View className="flex items-center justify-center bg-primary-beige rounded-2xl px-3 py-1 mx-1 flex-1">
             <Text className="font-wakExtraBold text-3xl text-primary-green">
-              25€
+              {donations}€
             </Text>
             <Text className="font-wak text-base text-primary-green">
               donnés
@@ -102,7 +110,7 @@ const Profile = () => {
           </View>
           <View className="flex items-center justify-center bg-primary-red rounded-2xl px-3 py-1 mx-1 flex-1">
             <Text className="font-wakExtraBold text-3xl text-primary-beige">
-              9
+              {participations}
             </Text>
             <Text className="font-wak text-base text-primary-beige">
               participations
@@ -110,7 +118,7 @@ const Profile = () => {
           </View>
         </View>
         <Text className="font-sansbold text-base m-4 text-primary-beige">
-          Blabakbbakbakbabakbkabbakabkabkababkabbak lorem ipsum dolor sit amet
+          {biography}
         </Text>
       </View>
       {/* Tab navigator */}

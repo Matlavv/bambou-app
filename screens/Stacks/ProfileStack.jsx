@@ -1,4 +1,5 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import EditBiography from "../Profile/EditProfile/EditBiography";
 import EditEmail from "../Profile/EditProfile/EditEmail";
 import EditPassword from "../Profile/EditProfile/EditPassword";
 import EditUsername from "../Profile/EditProfile/EditUsername";
@@ -19,6 +20,7 @@ const ProfileStack = () => {
       <stack.Screen name="EditEmail" component={EditEmail} />
       <stack.Screen name="EditPassword" component={EditPassword} />
       <stack.Screen name="EditUsername" component={EditUsername} />
+      <stack.Screen name="EditBiography" component={EditBiography} />
     </stack.Navigator>
   );
 };

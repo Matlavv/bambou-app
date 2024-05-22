@@ -3,12 +3,11 @@ import { getAuth } from "firebase/auth";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 import React, { useCallback, useState } from "react";
 import { Image, TouchableOpacity, View } from "react-native";
-import { profilePic } from "../../assets";
 import { app } from "../../firebaseConfig";
 
 const ProfilePic = () => {
   const navigation = useNavigation();
-  const [userProfilePic, setUserProfilePic] = useState(profilePic);
+  const [userProfilePic, setUserProfilePic] = useState("");
 
   const navigateToProfile = () => {
     navigation.navigate("Profile");

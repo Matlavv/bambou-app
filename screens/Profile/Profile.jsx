@@ -1,9 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { getAuth } from "firebase/auth";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -27,22 +27,24 @@ const Profile = () => {
   const db = getFirestore(app);
   const user = auth.currentUser;
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (user) {
-        const userDoc = doc(db, "users", user.uid);
-        const userSnapshot = await getDoc(userDoc);
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          setUserProfilePic(userData.profilePic || profilePic);
-          setUsername(userData.username);
-          setEmail(userData.email);
-        }
+  const fetchUserProfile = useCallback(async () => {
+    if (user) {
+      const userDoc = doc(db, "users", user.uid);
+      const userSnapshot = await getDoc(userDoc);
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.data();
+        setUserProfilePic(userData.profilePic || profilePic);
+        setUsername(userData.username);
+        setEmail(userData.email);
       }
-    };
+    }
+  }, [user, db]);
 
-    fetchUserProfile();
-  }, [user]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserProfile();
+    }, [fetchUserProfile])
+  );
 
   const navigateToSettings = () => {
     navigation.navigate("Settings");

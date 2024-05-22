@@ -1,11 +1,11 @@
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { getAuth } from "firebase/auth";
 import { doc, getDoc, getFirestore, updateDoc } from "firebase/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -32,24 +32,26 @@ const Settings = () => {
   const storage = getStorage(app);
   const user = auth.currentUser;
 
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      if (user) {
-        const userDoc = doc(db, "users", user.uid);
-        const userSnapshot = await getDoc(userDoc);
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          console.log("User data fetched:", userData);
-          setUserInfo(userData);
-          setImage(userData.profilePic || profilePic);
-        } else {
-          console.log("No user data found in Firestore.");
-        }
+  const fetchUserInfo = useCallback(async () => {
+    if (user) {
+      const userDoc = doc(db, "users", user.uid);
+      const userSnapshot = await getDoc(userDoc);
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.data();
+        console.log("User data fetched:", userData);
+        setUserInfo(userData);
+        setImage(userData.profilePic || profilePic);
+      } else {
+        console.log("No user data found in Firestore.");
       }
-    };
+    }
+  }, [user, db]);
 
-    fetchUserInfo();
-  }, [user]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserInfo();
+    }, [fetchUserInfo])
+  );
 
   const navigateToEditUsername = () => {
     navigation.navigate("EditUsername");

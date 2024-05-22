@@ -39,7 +39,7 @@ const EditUsername = () => {
             "Réussi",
             "Votre nom d'utilisateur a été mis à jour avec succès"
           );
-          setUsername(newUsername);
+          navigation.goBack(); // Navigate back to settings
         })
         .catch((error) => {
           console.error("Erreur dans la modification: ", error);

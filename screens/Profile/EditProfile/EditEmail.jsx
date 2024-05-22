@@ -58,6 +58,7 @@ const EditEmail = () => {
                     "Adresse email mise à jour avec succès."
                   );
                   setEmail(newEmail);
+                  navigation.goBack();
                 })
                 .catch((error) => {
                   console.error(

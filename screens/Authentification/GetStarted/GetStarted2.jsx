@@ -44,7 +44,7 @@ const GetStarted2 = () => {
             onPress={navigateToGetStarted3}
           >
             <Text className="text-primary-beige text-xl font-sansBold">
-              Suivant-
+              Suivant
             </Text>
           </TouchableOpacity>
         </View>

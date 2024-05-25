@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { useNavigation } from "@react-navigation/native";
-import React from "react";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { getAuth } from "firebase/auth";
+import { doc, getDoc, getFirestore } from "firebase/firestore";
+import React, { useCallback, useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -12,10 +14,45 @@ import {
 import { bambooCoins, profilePic } from "../../assets";
 import MyBadges from "../../components/ProfileSection/MyBadges";
 import MyPosts from "../../components/ProfileSection/MyPosts";
+import { app } from "../../firebaseConfig";
 
 const Profile = () => {
   const Tab = createMaterialTopTabNavigator();
   const navigation = useNavigation();
+  const [userProfilePic, setUserProfilePic] = useState(null);
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [credits, setCredits] = useState(0);
+  const [donations, setDonations] = useState(0);
+  const [participations, setParticipations] = useState(0);
+  const [biography, setBiography] = useState("");
+
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const user = auth.currentUser;
+
+  const fetchUserProfile = useCallback(async () => {
+    if (user) {
+      const userDoc = doc(db, "users", user.uid);
+      const userSnapshot = await getDoc(userDoc);
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.data();
+        setUserProfilePic(userData.profilePic || profilePic);
+        setUsername(userData.username);
+        setEmail(userData.email);
+        setCredits(userData.credits);
+        setDonations(userData.donations);
+        setParticipations(userData.participations);
+        setBiography(userData.biography);
+      }
+    }
+  }, [user, db]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserProfile();
+    }, [fetchUserProfile])
+  );
 
   const navigateToSettings = () => {
     navigation.navigate("Settings");
@@ -32,13 +69,13 @@ const Profile = () => {
         </TouchableOpacity>
         <View className="flex-row mt-24 mx-4">
           <Image
-            source={profilePic}
+            source={userProfilePic ? { uri: userProfilePic } : profilePic}
             className="w-24 h-24 rounded-full"
             alt="profile pic"
           />
           <View className="m-4">
             <Text className="text-primary-beige font-sans text-2xl">
-              john_doe
+              {username}
             </Text>
             <View className="flex-row items-center mt-2">
               <Text className="text-primary-beige font-sansBold text-lg">
@@ -55,7 +92,7 @@ const Profile = () => {
         <View className="flex-row justify-around mt-4 m-2">
           <View className="flex-row items-center justify-center bg-primary-yellow rounded-2xl px-3 py-1 mx-1 flex-1">
             <Text className="font-wakExtraBold text-3xl text-primary-beige">
-              150
+              {credits}
             </Text>
             <Image
               source={bambooCoins}
@@ -65,7 +102,7 @@ const Profile = () => {
           </View>
           <View className="flex items-center justify-center bg-primary-beige rounded-2xl px-3 py-1 mx-1 flex-1">
             <Text className="font-wakExtraBold text-3xl text-primary-green">
-              25€
+              {donations}€
             </Text>
             <Text className="font-wak text-base text-primary-green">
               donnés
@@ -73,7 +110,7 @@ const Profile = () => {
           </View>
           <View className="flex items-center justify-center bg-primary-red rounded-2xl px-3 py-1 mx-1 flex-1">
             <Text className="font-wakExtraBold text-3xl text-primary-beige">
-              9
+              {participations}
             </Text>
             <Text className="font-wak text-base text-primary-beige">
               participations
@@ -81,7 +118,7 @@ const Profile = () => {
           </View>
         </View>
         <Text className="font-sansbold text-base m-4 text-primary-beige">
-          Blabakbbakbakbabakbkabbakabkabkababkabbak lorem ipsum dolor sit amet
+          {biography}
         </Text>
       </View>
       {/* Tab navigator */}

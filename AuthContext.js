@@ -1,32 +1,57 @@
-import { signOut as firebaseSignOut } from "firebase/auth";
+import { getAuth } from "firebase/auth";
+import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { createContext, useEffect, useState } from "react";
-import { auth } from "./firebaseConfig";
+import { app } from "./firebaseConfig";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userInfo, setUserInfo] = useState(null);
 
-  // Définition de la fonction signOut
-  const signOut = () => {
-    firebaseSignOut(auth).then(() => {
-      console.log("Déconnexion réussie");
-      console.error("Erreur lors de la déconnexion :", error);
-    });
-  };
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setCurrentUser(user);
       setIsAuthenticated(!!user);
+      if (user) {
+        const userDoc = doc(db, "users", user.uid);
+        getDoc(userDoc).then((doc) => {
+          if (doc.exists()) {
+            setUserInfo(doc.data());
+          }
+        });
+      }
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [auth, db]);
+
+  const updateUserInfo = (newInfo) => {
+    setUserInfo((prev) => ({ ...prev, ...newInfo }));
+  };
+
+  const signOut = () => {
+    auth.signOut().then(() => {
+      setCurrentUser(null);
+      setIsAuthenticated(false);
+      setUserInfo(null);
+    });
+  };
 
   return (
-    <AuthContext.Provider value={{ currentUser, isAuthenticated, signOut }}>
+    <AuthContext.Provider
+      value={{
+        currentUser,
+        isAuthenticated,
+        userInfo,
+        updateUserInfo,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

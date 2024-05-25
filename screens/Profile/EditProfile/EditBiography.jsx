@@ -6,10 +6,10 @@ import React, { useEffect, useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { app } from "../../../firebaseConfig";
 
-const EditUsername = () => {
+const EditBiography = () => {
   const navigation = useNavigation();
-  const [username, setUsername] = useState("");
-  const [newUsername, setNewUsername] = useState("");
+  const [biography, setBiography] = useState("");
+  const [newBiography, setNewBiography] = useState("");
 
   const auth = getAuth(app);
   const db = getFirestore(app);
@@ -21,7 +21,7 @@ const EditUsername = () => {
       getDoc(userDoc)
         .then((doc) => {
           if (doc.exists()) {
-            setUsername(doc.data().username);
+            setBiography(doc.data().biography);
           }
         })
         .catch((error) => {
@@ -31,21 +31,18 @@ const EditUsername = () => {
   }, [userId]);
 
   const handleSave = () => {
-    if (userId && newUsername) {
+    if (userId && newBiography) {
       const userDoc = doc(db, "users", userId);
-      updateDoc(userDoc, { username: newUsername })
+      updateDoc(userDoc, { biography: newBiography })
         .then(() => {
-          Alert.alert(
-            "Réussi",
-            "Votre nom d'utilisateur a été mis à jour avec succès"
-          );
+          Alert.alert("Réussi", "Ta bio a été mise à jour avec succès !");
           navigation.goBack(); // Navigate back to settings
         })
         .catch((error) => {
           console.error("Erreur dans la modification: ", error);
           Alert.alert(
             "Erreur",
-            "Il y a eu une erreur lors de la mise à jour de votre nom d'utilisateur"
+            "Il y a eu une erreur lors de la mise à jour de ta biographie"
           );
         });
     }
@@ -58,18 +55,21 @@ const EditUsername = () => {
           <Ionicons name="chevron-back" size={30} color="#005B41" />
         </TouchableOpacity>
         <Text className="text-4xl font-wakExtraBold text-primary-green ml-4">
-          Nom d'utilisateur
+          Biographie
         </Text>
       </View>
       <View className="mt-4">
         <Text className="text-primary-green ml-5 text-lg font-sans mt-4">
-          Ton nom d'utilisateur
+          Ta bio
         </Text>
         <TextInput
-          className="text-primary-green bg-secondary-beige p-3 rounded-2xl mt-2 mx-4"
-          placeholder={username}
-          value={newUsername}
-          onChangeText={setNewUsername}
+          className="text-primary-green bg-secondary-beige p-3 rounded-2xl mt-2 mx-4 h-24"
+          placeholder={biography}
+          value={newBiography}
+          onChangeText={(text) => setNewBiography(text.slice(0, 100))}
+          maxLength={100}
+          multiline
+          textAlignVertical="top"
         />
         <View className="flex justify-between items-center">
           <TouchableOpacity
@@ -86,4 +86,4 @@ const EditUsername = () => {
   );
 };
 
-export default EditUsername;
+export default EditBiography;

@@ -7,7 +7,7 @@ import GetEventsDetailsModal from "../../screens/Events/GetEventsDetailsModal";
 const data = [
   {
     id: 1,
-    title: "Ramassage de dechets",
+    title: "Ramassage de caca",
     date: "Dimanche 28 avril de 12h à 17h",
     location: "Antibes, France",
     participants: "26",

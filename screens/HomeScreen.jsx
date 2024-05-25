@@ -1,5 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
-import React from "react";
+import { getAuth } from "firebase/auth";
+import { doc, getDoc, getFirestore } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -14,9 +16,30 @@ import ProfilePic from "../components/Badges/ProfilePic";
 import UserCredits from "../components/Badges/UserCredits";
 import LastArticles from "../components/Sections/LastArticles";
 import UpcomingEvents from "../components/Sections/UpcomingEvents";
+import { app } from "../firebaseConfig";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const [username, setUsername] = useState("John Doe"); // valeur par défaut
+
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const user = auth.currentUser;
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user) {
+        const userDoc = doc(db, "users", user.uid);
+        const userSnapshot = await getDoc(userDoc);
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          setUsername(userData.username || "John Doe");
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
 
   const navigateToEvents = () => {
     navigation.navigate("Event");
@@ -34,7 +57,7 @@ const HomeScreen = () => {
           <View className="flex-row justify-between items-center">
             <View>
               <Text className="text-2xl text-primary-green font-sans">
-                Bonjour John Doe
+                Bonjour {username}
               </Text>
               <Text className="text-primary-green text-lg font-sansBold">
                 Prêt(e) à agir pour notre planète ?

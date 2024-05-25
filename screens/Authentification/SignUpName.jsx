@@ -1,22 +1,25 @@
+import { useNavigation } from "@react-navigation/native";
 import {
   createUserWithEmailAndPassword,
   getAuth,
   updateProfile,
 } from "firebase/auth";
-import { doc, getFirestore, setDoc } from "firebase/firestore";
+import { Timestamp, doc, getFirestore, setDoc } from "firebase/firestore";
 import React, { useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { app } from "../../firebaseConfig";
 
-const db = getFirestore();
+const db = getFirestore(app);
 
 const SignUpName = ({ route }) => {
   const { email, password } = route.params;
   const [firstName, setFirstName] = useState("");
   const [username, setUsername] = useState("");
+  const navigation = useNavigation();
 
   const createAccount = () => {
-    const auth = getAuth();
+    const auth = getAuth(app);
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
@@ -31,29 +34,49 @@ const SignUpName = ({ route }) => {
               email: email,
               firstName: firstName,
               username: username,
+              credits: 0,
+              donations: 0,
+              participations: 0,
+              profilePic:
+                "https://firebasestorage.googleapis.com/v0/b/bambou-5e77d.appspot.com/o/profilePictures%2FprofilePic.png?alt=media&token=cb84ae21-80db-4ebf-b85f-3f63271ba236",
+              isCertified: false,
+              isPremium: false,
+              createdAt: Timestamp.now(),
+              updatedAt: Timestamp.now(),
+              biography: "Sauvons la planète ensemble ! 🌍",
             })
               .then(() => {
                 // Redirige l'utilisateur vers la page d'accueil
-                navigation.navigate("HomeScreen");
+                navigation.navigate("AuthenticatedApp");
               })
               .catch((error) => {
                 console.error(
                   "Erreur lors de l'enregistrement des données utilisateur :",
                   error
                 );
+                Alert.alert(
+                  "Erreur",
+                  "Une erreur s'est produite lors de l'enregistrement des données utilisateur."
+                );
               });
           })
           .catch((error) => {
             console.error("Erreur lors de la mise à jour du profil :", error);
+            Alert.alert(
+              "Erreur",
+              "Une erreur s'est produite lors de la mise à jour du profil."
+            );
           });
       })
       .catch((error) => {
-        const errorCode = error.code;
         const errorMessage = error.message;
-        // Gérer ici les erreurs de création d'utilisateur
         console.error(
           "Erreur lors de la création de l'utilisateur :",
           errorMessage
+        );
+        Alert.alert(
+          "Erreur",
+          "Une erreur s'est produite lors de la création de l'utilisateur."
         );
       });
   };

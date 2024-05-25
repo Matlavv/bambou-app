@@ -1,0 +1,2 @@
+Informations des associations
+Stocker la liste des donations effectuées pour chaque user

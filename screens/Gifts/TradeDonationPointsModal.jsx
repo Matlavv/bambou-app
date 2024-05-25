@@ -1,24 +1,88 @@
-import React, { useState } from "react";
-import { Modal, Text, TouchableOpacity, View } from "react-native";
+import { getAuth } from "firebase/auth";
+import { doc, getFirestore, increment, updateDoc } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { Alert, Modal, Text, TouchableOpacity, View } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { app } from "../../firebaseConfig";
 
-const TradeDonationPoints = ({ visible, onRequestClose, association }) => {
-  const [credits, setCredits] = useState(1000);
+const TradeDonationPointsModal = ({
+  visible,
+  onRequestClose,
+  association,
+  userCredits,
+  onDonationComplete,
+}) => {
+  const [credits, setCredits] = useState(userCredits);
+
+  useEffect(() => {
+    setCredits(userCredits); // Reset credits to user's available credits when the modal opens
+  }, [visible, userCredits]);
 
   if (!association) return null;
 
   const handleAdd = () => {
-    setCredits((prevCredits) => prevCredits + 50);
+    setCredits((prevCredits) => Math.min(prevCredits + 50, userCredits));
   };
 
   const handleRemove = () => {
     setCredits((prevCredits) =>
-      prevCredits >= 50 ? prevCredits - 50 : prevCredits
+      prevCredits > 1000 ? prevCredits - 50 : prevCredits
     );
   };
 
   const calculatePrice = (credits) => {
-    return (credits / 500) * 5;
+    return (credits / 1000).toFixed(2);
+  };
+
+  const handleDonation = async () => {
+    if (credits < 1000) {
+      Alert.alert(
+        "Erreur",
+        "Vous devez donner au moins 1000 crédits pour faire un don."
+      );
+      return;
+    }
+
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const user = auth.currentUser;
+
+    if (user) {
+      const userDoc = doc(db, "users", user.uid);
+      const associationDoc = doc(db, "associations", association.id);
+      const donationAmount = parseFloat(calculatePrice(credits));
+
+      try {
+        // Mettre à jour les crédits de l'utilisateur et les champs de don
+        await updateDoc(userDoc, {
+          credits: increment(-credits),
+          donations: increment(donationAmount),
+        });
+
+        await updateDoc(associationDoc, {
+          donatedCounter: increment(donationAmount),
+        });
+
+        Alert.alert(
+          "Merci pour votre don !",
+          `Vous avez donné ${donationAmount}€ à ${association.name}.`,
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                onDonationComplete();
+                onRequestClose();
+              },
+            },
+          ]
+        );
+      } catch (error) {
+        Alert.alert(
+          "Erreur",
+          "Une erreur est survenue lors de votre don. Veuillez réessayer."
+        );
+      }
+    }
   };
 
   return (
@@ -74,7 +138,7 @@ const TradeDonationPoints = ({ visible, onRequestClose, association }) => {
         <View className="flex justify-end items-center mb-5">
           <TouchableOpacity
             className="flex items-center justify-center bg-primary-yellow p-3 px-6 rounded-full w-5/6"
-            onPress={onRequestClose}
+            onPress={handleDonation}
           >
             <Text className="font-sans text-lg text-primary-beige">
               Je donne !
@@ -86,4 +150,4 @@ const TradeDonationPoints = ({ visible, onRequestClose, association }) => {
   );
 };
 
-export default TradeDonationPoints;
+export default TradeDonationPointsModal;

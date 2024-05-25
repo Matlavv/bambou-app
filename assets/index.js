@@ -19,7 +19,6 @@ import panda_please from "./img/panda_please.png";
 import panda_strong from "./img/panda_strong.png";
 import profilePic from "./img/profilePic.png";
 import save_the_earth from "./img/save_the_earth.png";
-import wwf from "./img/wwf.png";
 
 export {
   article1,
@@ -43,5 +42,4 @@ export {
   panda_strong,
   profilePic,
   save_the_earth,
-  wwf,
 };

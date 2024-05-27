@@ -69,6 +69,10 @@ const Settings = () => {
     navigation.navigate("EditBiography");
   };
 
+  const navigateToHistory = () => {
+    navigation.navigate("History");
+  };
+
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -192,6 +196,15 @@ const Settings = () => {
           >
             <Text className="text-primary-green ml-2 text-lg font-sans">
               Mot de passe
+            </Text>
+            <Ionicons name="chevron-forward" size={24} color="#005B41" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="flex bg-secondary-beige p-3 rounded-2xl mt-2 flex-row justify-between items-center"
+            onPress={navigateToHistory}
+          >
+            <Text className="text-primary-green ml-2 text-lg font-sans">
+              Mes codes promos & donations
             </Text>
             <Ionicons name="chevron-forward" size={24} color="#005B41" />
           </TouchableOpacity>

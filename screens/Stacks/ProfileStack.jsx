@@ -3,6 +3,7 @@ import EditBiography from "../Profile/EditProfile/EditBiography";
 import EditEmail from "../Profile/EditProfile/EditEmail";
 import EditPassword from "../Profile/EditProfile/EditPassword";
 import EditUsername from "../Profile/EditProfile/EditUsername";
+import History from "../Profile/EditProfile/History";
 import Profil from "../Profile/Profile";
 import Settings from "../Profile/Settings";
 
@@ -21,6 +22,7 @@ const ProfileStack = () => {
       <stack.Screen name="EditPassword" component={EditPassword} />
       <stack.Screen name="EditUsername" component={EditUsername} />
       <stack.Screen name="EditBiography" component={EditBiography} />
+      <stack.Screen name="History" component={History} />
     </stack.Navigator>
   );
 };

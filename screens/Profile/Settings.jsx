@@ -38,7 +38,6 @@ const Settings = () => {
       const userSnapshot = await getDoc(userDoc);
       if (userSnapshot.exists()) {
         const userData = userSnapshot.data();
-        console.log("User data fetched:", userData);
         setUserInfo(userData);
         setImage(userData.profilePic || profilePic);
       } else {
@@ -96,7 +95,6 @@ const Settings = () => {
         const storageRef = ref(storage, `profilePictures/${user.uid}`);
         await uploadBytes(storageRef, blob);
         const downloadURL = await getDownloadURL(storageRef);
-        console.log("Image uploaded and URL obtained:", downloadURL);
         await updateProfilePic(downloadURL);
       } catch (error) {
         console.error("Error uploading image:", error);
@@ -109,7 +107,6 @@ const Settings = () => {
       try {
         const userDoc = doc(db, "users", user.uid);
         await updateDoc(userDoc, { profilePic: url });
-        console.log("Profile pic URL updated in Firestore:", url);
         setUserInfo((prev) => ({ ...prev, profilePic: url }));
       } catch (error) {
         console.error("Error updating profile pic in Firestore:", error);

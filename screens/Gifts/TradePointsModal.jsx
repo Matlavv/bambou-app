@@ -1,15 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import { getAuth } from "firebase/auth";
 import {
+  arrayRemove,
   collection,
   doc,
   getDocs,
   getFirestore,
   increment,
   onSnapshot,
-  query,
+  setDoc,
   updateDoc,
-  where,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import {
@@ -27,8 +27,8 @@ import RadioButton from "../../components/Badges/RadioButton";
 import { app } from "../../firebaseConfig";
 
 const TradePointsModal = ({ visible, onRequestClose, partner }) => {
-  const [vouchers, setVouchers] = useState([]);
-  const [selectedVoucher, setSelectedVoucher] = useState(null);
+  const [voucherTypes, setVoucherTypes] = useState([]);
+  const [selectedVoucherType, setSelectedVoucherType] = useState(null);
   const [userCredits, setUserCredits] = useState(0);
   const [redeemedCode, setRedeemedCode] = useState("");
 
@@ -50,7 +50,7 @@ const TradePointsModal = ({ visible, onRequestClose, partner }) => {
       return () => {};
     };
 
-    const fetchVouchers = async () => {
+    const fetchVoucherTypes = async () => {
       if (partner) {
         const vouchersCollection = collection(
           db,
@@ -58,63 +58,82 @@ const TradePointsModal = ({ visible, onRequestClose, partner }) => {
           partner.id,
           "vouchers"
         );
-        const vouchersQuery = query(
-          vouchersCollection,
-          where("status", "==", true)
-        );
-        const vouchersSnapshot = await getDocs(vouchersQuery);
+        const vouchersSnapshot = await getDocs(vouchersCollection);
         const vouchersList = vouchersSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-        setVouchers(vouchersList);
+        setVoucherTypes(vouchersList);
       }
     };
 
-    fetchVouchers();
+    fetchVoucherTypes();
     const unsubscribeUserCredits = fetchUserCredits();
 
     return () => unsubscribeUserCredits();
   }, [partner, user]);
 
-  const handleVoucherSelect = (voucher) => {
-    setSelectedVoucher(voucher);
+  const handleVoucherTypeSelect = (voucherType) => {
+    setSelectedVoucherType(voucherType);
   };
 
   const handleRedeemVoucher = async () => {
-    if (!selectedVoucher) {
-      Alert.alert("Veuillez sélectionner un bon de réduction.");
+    if (!selectedVoucherType) {
+      Alert.alert("Veuillez sélectionner un type de bon de réduction.");
       return;
     }
 
-    if (userCredits < selectedVoucher.costInCredits) {
+    if (userCredits < selectedVoucherType.costInCredits) {
       Alert.alert("Crédits insuffisants", "Vous n'avez pas assez de crédits.");
       return;
     }
 
+    if (selectedVoucherType.codes.length === 0) {
+      Alert.alert(
+        "Codes non disponibles",
+        "Il n'y a plus de codes disponibles pour ce bon de réduction."
+      );
+      return;
+    }
+
+    const codeToRedeem = selectedVoucherType.codes[0];
+
     try {
       const userDoc = doc(db, "users", user.uid);
-      const voucherDoc = doc(
+      const voucherTypeDoc = doc(
         db,
         "partners",
         partner.id,
         "vouchers",
-        selectedVoucher.id
+        selectedVoucherType.id
       );
+      const userVoucherDoc = doc(collection(db, "users", user.uid, "vouchers"));
 
+      // Mettre à jour les crédits de l'utilisateur
       await updateDoc(userDoc, {
-        credits: increment(-selectedVoucher.costInCredits),
+        credits: increment(-selectedVoucherType.costInCredits),
       });
 
-      await updateDoc(voucherDoc, {
-        status: false,
+      // Mettre à jour le type de bon pour supprimer le code utilisé
+      await updateDoc(voucherTypeDoc, {
+        codes: arrayRemove(codeToRedeem),
       });
 
-      setRedeemedCode(selectedVoucher.code);
+      // Ajouter le bon échangé à la sous-collection de l'utilisateur
+      await setDoc(userVoucherDoc, {
+        code: codeToRedeem,
+        amount: selectedVoucherType.amount,
+        redeemedAt: new Date(),
+        partnerId: partner.id,
+        expiresAt: selectedVoucherType.expiresAt.toDate(),
+        partnerLogo: partner.logo,
+      });
+
+      setRedeemedCode(codeToRedeem);
 
       Alert.alert(
         "Bon de réduction récupéré !",
-        `Votre code : ${selectedVoucher.code}.`
+        `Votre code : ${codeToRedeem}.`
       );
     } catch (error) {
       console.error("Error redeeming voucher: ", error);
@@ -149,24 +168,24 @@ const TradePointsModal = ({ visible, onRequestClose, partner }) => {
           <Text className="text-4xl text-primary-green font-wakExtraBold mt-2">
             {partner.name}
           </Text>
-          {/* Vouchers */}
+          {/* Voucher Types */}
           <FlatList
-            data={vouchers}
+            data={voucherTypes}
             keyExtractor={(item) => item.id}
-            renderItem={({ item: voucher }) => (
+            renderItem={({ item: voucherType }) => (
               <View className="flex-row justify-between bg-secondary-beige p-4 rounded-xl mt-4 items-center">
                 <RadioButton
-                  selected={selectedVoucher?.id === voucher.id}
-                  onPress={() => handleVoucherSelect(voucher)}
+                  selected={selectedVoucherType?.id === voucherType.id}
+                  onPress={() => handleVoucherTypeSelect(voucherType)}
                 />
                 <View className="flex-row items-center">
                   <Text className="text-lg text-primary-green font-sansBold">
-                    {voucher.amount}€ de remise
+                    {voucherType.amount}€ de remise
                   </Text>
                 </View>
                 <View className="flex-row items-center bg-primary-yellow px-2 rounded-full">
                   <Text className="text-primary-beige text-lg font-wakBold">
-                    {voucher.costInCredits}
+                    {voucherType.costInCredits}
                   </Text>
                   <Image source={bambooCoins} className="w-4 h-4 mx-1" />
                 </View>

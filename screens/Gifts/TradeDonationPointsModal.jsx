@@ -1,5 +1,13 @@
 import { getAuth } from "firebase/auth";
-import { doc, getFirestore, increment, updateDoc } from "firebase/firestore";
+import {
+  Timestamp,
+  addDoc,
+  collection,
+  doc,
+  getFirestore,
+  increment,
+  updateDoc,
+} from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Alert, Modal, Text, TouchableOpacity, View } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -61,6 +69,16 @@ const TradeDonationPointsModal = ({
 
         await updateDoc(associationDoc, {
           donatedCounter: increment(donationAmount),
+        });
+
+        // Ajouter une entrée dans la collection donationHistory
+        const donationHistoryDoc = collection(db, "donationHistory");
+        await addDoc(donationHistoryDoc, {
+          userId: user.uid,
+          associationId: association.id,
+          amount: donationAmount,
+          donationDate: new Date(),
+          createdAt: Timestamp.now(),
         });
 
         Alert.alert(

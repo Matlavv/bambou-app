@@ -73,6 +73,13 @@ const TradePointsModal = ({ visible, onRequestClose, partner }) => {
     return () => unsubscribeUserCredits();
   }, [partner, user]);
 
+  useEffect(() => {
+    if (!visible) {
+      setRedeemedCode("");
+      setSelectedVoucherType(null);
+    }
+  }, [visible]);
+
   const handleVoucherTypeSelect = (voucherType) => {
     setSelectedVoucherType(voucherType);
   };
@@ -200,21 +207,8 @@ const TradePointsModal = ({ visible, onRequestClose, partner }) => {
               <TextInput
                 value={redeemedCode}
                 editable={false}
-                className="text-lg text-primary-green font-sansBold mt-2"
+                className="text-xl text-primary-green font-sans mt-2"
               />
-              <TouchableOpacity
-                className="bg-primary-yellow p-2 rounded-full mt-2"
-                onPress={() => {
-                  Alert.alert(
-                    "Code copié",
-                    "Le code a été copié dans votre presse-papiers."
-                  );
-                }}
-              >
-                <Text className="text-center text-primary-beige font-sansBold">
-                  Copier le code
-                </Text>
-              </TouchableOpacity>
             </View>
           ) : null}
         </View>

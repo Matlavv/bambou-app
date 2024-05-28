@@ -79,7 +79,7 @@ const HomeScreen = () => {
           <DailyChallenges />
           <Image
             source={panda_strong}
-            className="absolute w-40 h-40 -bottom-24 -left-8"
+            className="absolute w-40 h-40 -bottom-24 -left-10 origin-bottom -rotate-12"
             alt="panda strong badge"
           />
         </View>

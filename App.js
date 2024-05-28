@@ -1,11 +1,22 @@
-import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as Font from "expo-font";
 import React, { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 import { AuthContext, AuthProvider } from "./AuthContext";
+import {
+  articles,
+  articlesBeige,
+  calendar,
+  calendarBeige,
+  gift,
+  giftBeige,
+  home,
+  homeBeige,
+  social,
+  socialBeige,
+} from "./assets/icons/index";
 import HomeScreen from "./screens/HomeScreen";
 import ArticlesStack from "./screens/Stacks/ArticlesStack";
 import AuthStack from "./screens/Stacks/AuthStack";
@@ -38,22 +49,31 @@ const MyTheme = {
   },
 };
 
+function HomeStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Profile" component={ProfileStack} />
+    </Stack.Navigator>
+  );
+}
+
 function AuthenticatedApp() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-          if (route.name === "HomeScreen") {
-            iconName = focused ? "home" : "home-outline";
+        tabBarIcon: ({ focused }) => {
+          let icon;
+          if (route.name === "HomeStack") {
+            icon = focused ? homeBeige : home;
           } else if (route.name === "Gift") {
-            iconName = focused ? "gift" : "gift-outline";
+            icon = focused ? giftBeige : gift;
           } else if (route.name === "Event") {
-            iconName = focused ? "calendar" : "calendar-outline";
+            icon = focused ? calendarBeige : calendar;
           } else if (route.name === "Social") {
-            iconName = focused ? "apps" : "apps-outline";
+            icon = focused ? socialBeige : social;
           } else if (route.name === "Articles") {
-            iconName = focused ? "newspaper" : "newspaper-outline";
+            icon = focused ? articlesBeige : articles;
           }
 
           return (
@@ -69,14 +89,10 @@ function AuthenticatedApp() {
                   : "transparent",
               }}
             >
-              <Ionicons
-                name={iconName}
-                size={size}
-                color={
-                  focused
-                    ? MyTheme.colors.primaryBeige
-                    : MyTheme.colors.primaryGreen
-                }
+              <Image
+                source={icon}
+                style={{ width: 30, height: 30 }}
+                resizeMode="contain"
               />
             </View>
           );
@@ -98,21 +114,23 @@ function AuthenticatedApp() {
         ],
       })}
     >
-      <Tab.Screen name="HomeScreen" component={HomeScreen} />
+      <Tab.Screen
+        name="HomeStack"
+        component={HomeStack}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            // Prevent default action
+            e.preventDefault();
+            // Navigate to HomeScreen
+            navigation.navigate("HomeStack", { screen: "Home" });
+          },
+        })}
+      />
       <Tab.Screen name="Event" component={EventsStack} />
       <Tab.Screen name="Social" component={SocialStack} />
       <Tab.Screen name="Articles" component={ArticlesStack} />
       <Tab.Screen name="Gift" component={GiftsStack} />
     </Tab.Navigator>
-  );
-}
-
-function MainNavigator() {
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="AuthenticatedApp" component={AuthenticatedApp} />
-      <Stack.Screen name="Profile" component={ProfileStack} />
-    </Stack.Navigator>
   );
 }
 
@@ -136,7 +154,7 @@ export default function App() {
       <NavigationContainer theme={MyTheme}>
         <AuthContext.Consumer>
           {({ isAuthenticated }) =>
-            isAuthenticated ? <MainNavigator /> : <AuthStack />
+            isAuthenticated ? <AuthenticatedApp /> : <AuthStack />
           }
         </AuthContext.Consumer>
       </NavigationContainer>

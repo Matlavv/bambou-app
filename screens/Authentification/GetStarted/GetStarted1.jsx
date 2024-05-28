@@ -40,7 +40,7 @@ const GetStarted1 = () => {
         {/* Bouton en bas */}
         <View className="w-full px-12 pb-10">
           <TouchableOpacity
-            className="bg-primary-yellow py-4 rounded-full items-center justify-center"
+            className="bg-primary-green py-4 rounded-full items-center justify-center"
             onPress={navigateToGetStarted2}
           >
             <Text className="text-primary-beige text-xl font-sansBold">

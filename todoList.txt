@@ -1,0 +1,3 @@
+Informations des associations
+Stocker la liste des donations effectuées pour chaque user
+Flou sur l'ouverture d'une modale

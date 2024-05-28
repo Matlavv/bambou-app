@@ -44,6 +44,7 @@ const SignUpName = ({ route }) => {
               createdAt: Timestamp.now(),
               updatedAt: Timestamp.now(),
               biography: "Sauvons la planète ensemble ! 🌍",
+              lastChallengeUpdate: Timestamp.now(),
             })
               .then(() => {
                 // Redirige l'utilisateur vers la page d'accueil

@@ -1,14 +1,61 @@
-import React, { useState } from "react";
+import { getAuth } from "firebase/auth";
+import {
+  collection,
+  doc,
+  getDocs,
+  getFirestore,
+  onSnapshot,
+} from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
-import { bambooCoins, carrefour } from "../../assets";
+import { bambooCoins } from "../../assets";
+import { app } from "../../firebaseConfig";
 import TradePointsModal from "../../screens/Gifts/TradePointsModal";
 
 const BrandsList = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedBrand, setSelectedBrand] = useState(null);
+  const [selectedPartner, setSelectedPartner] = useState(null);
+  const [partners, setPartners] = useState([]);
+  const [userCredits, setUserCredits] = useState(0);
 
-  const openModal = (brand) => {
-    setSelectedBrand(brand);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const user = auth.currentUser;
+
+  // Fetch partners
+  useEffect(() => {
+    const fetchPartners = async () => {
+      const partnersCollection = collection(db, "partners");
+      const partnersSnapshot = await getDocs(partnersCollection);
+      const partnersList = partnersSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setPartners(partnersList);
+    };
+
+    // get user credits
+    const fetchUserCredits = () => {
+      if (user) {
+        const userDoc = doc(db, "users", user.uid);
+        return onSnapshot(userDoc, (doc) => {
+          if (doc.exists()) {
+            const userData = doc.data();
+            setUserCredits(userData.credits);
+          }
+        });
+      }
+      return () => {};
+    };
+
+    fetchPartners();
+    const unsubscribeUserCredits = fetchUserCredits();
+
+    return () => unsubscribeUserCredits();
+  }, [user]);
+
+  const openModal = (partner) => {
+    setSelectedPartner(partner);
     setModalVisible(true);
   };
 
@@ -16,69 +63,35 @@ const BrandsList = () => {
     setModalVisible(false);
   };
 
-  const brands = [
-    {
-      id: 1,
-      name: "Carrefour",
-      image: "carrefour",
-      points1: 1000,
-      points2: 250,
-    },
-    {
-      id: 2,
-      name: "Auchan",
-      image: "carrefour",
-      points1: 500,
-      points2: 250,
-    },
-    {
-      id: 3,
-      name: "Leclerc",
-      image: "carrefour",
-      points1: 1500,
-      points2: 250,
-    },
-    {
-      id: 4,
-      name: "Monoprix",
-      image: "carrefour",
-      points1: 2000,
-      points2: 250,
-    },
-    {
-      id: 5,
-      name: "Franprix",
-      image: "carrefour",
-      points1: 2000,
-      points2: 250,
-    },
-  ];
-
   return (
     <View>
       <FlatList
-        data={brands}
+        data={partners}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item: brand }) => (
+        renderItem={({ item: partner }) => (
           <TouchableOpacity
             className="flex-row items-center bg-secondary-beige p-3 rounded-xl mx-5 my-2"
-            onPress={() => openModal(brand)}
+            onPress={() => openModal(partner)}
           >
-            <Image source={carrefour} className="w-16 h-16" alt="brand logo" />
+            <Image
+              source={{ uri: partner.logo }}
+              className="w-16 h-16"
+              alt="brand logo"
+            />
             <View className="ml-4">
               <Text className="text-primary-green font-sans text-lg">
-                {brand.name}
+                {partner.name}
               </Text>
               <View className="flex-row items-center">
                 <View className="flex-row items-center bg-primary-yellow px-2 rounded-full my-1">
                   <Text className="text-primary-beige font-wakBold text-lg">
-                    {brand.points1}
+                    {partner.points1}
                   </Text>
                   <Image source={bambooCoins} className="w-4 h-4 mx-1" />
                 </View>
                 <View className="flex-row items-center bg-primary-yellow px-2 rounded-full my-1 mx-2">
                   <Text className="text-primary-beige text-lg font-wakBold">
-                    {brand.points2}
+                    {partner.points2}
                   </Text>
                   <Image
                     source={bambooCoins}
@@ -94,7 +107,8 @@ const BrandsList = () => {
       <TradePointsModal
         visible={modalVisible}
         onRequestClose={closeModal}
-        brand={selectedBrand}
+        partner={selectedPartner}
+        userCredits={userCredits}
       />
     </View>
   );

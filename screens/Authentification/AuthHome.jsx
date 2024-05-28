@@ -32,7 +32,7 @@ const AuthHome = () => {
         <View className="w-full px-10 pb-10">
           {/* Signup button redirect to Start road */}
           <TouchableOpacity
-            className="bg-primary-red py-4 rounded-full items-center mb-4"
+            className="bg-primary-yellow py-4 rounded-full items-center mb-4"
             onPress={navigateToGetStarted}
           >
             <Text className="text-primary-beige text-lg font-sans">

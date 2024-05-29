@@ -1,6 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import React from "react";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { getAuth } from "firebase/auth";
+import {
+  arrayRemove,
+  doc,
+  getDoc,
+  getFirestore,
+  updateDoc,
+} from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -9,13 +17,62 @@ import {
   View,
 } from "react-native";
 import { panda_crying_baby, profilePic } from "../../assets";
+import { app } from "../../firebaseConfig";
 
 const EventCancel = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { eventId } = route.params;
+  const [event, setEvent] = useState(null);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-  const navigateToEvents = () => {
-    navigation.navigate("Events");
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        const eventDoc = await getDoc(doc(db, "events", eventId));
+        if (eventDoc.exists()) {
+          setEvent(eventDoc.data());
+        }
+      } catch (error) {
+        console.error("Error fetching event: ", error);
+      }
+    };
+
+    fetchEvent();
+  }, [eventId]);
+
+  const handleCancelParticipation = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+      const userDoc = doc(db, "users", user.uid);
+      const eventDoc = doc(db, "events", eventId);
+
+      await updateDoc(userDoc, {
+        enrolledEvents: arrayRemove(eventId),
+      });
+
+      await updateDoc(eventDoc, {
+        participants: arrayRemove(user.uid),
+      });
+
+      navigation.navigate("Events");
+    } catch (error) {
+      console.error("Error cancelling participation: ", error);
+    }
   };
+
+  if (!event) {
+    return (
+      <SafeAreaView className="flex-1 justify-center items-center">
+        <Text className="text-primary-green font-sansBold text-lg">
+          Chargement de l'événement...
+        </Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1">
@@ -35,7 +92,7 @@ const EventCancel = () => {
           </Text>
           <View className="m-3 mx-5 p-4 rounded-xl mt-5 bg-primary-green">
             <Text className="text-primary-beige font-sans text-2xl">
-              Ramassage de déchets
+              {event.title}
             </Text>
             <View className="flex flex-row items-center bg-primary-beige rounded-full px-2 py-1 w-2/3 truncate mt-2">
               <Ionicons name="location-outline" size={20} color="#005B41" />
@@ -43,13 +100,12 @@ const EventCancel = () => {
                 className="text-primary-green font-sansBold text-lg"
                 numberOfLines={1}
               >
-                Deauville, France
+                {event.address}
               </Text>
             </View>
             <Text className="text-primary-beige font-sans text-lg mt-2">
-              Dimanche 28 avril de 14h à 16h
+              {event.date}
             </Text>
-            {/* Pictures of participating people */}
             <View className="flex-row mt-4 items-center justify-between">
               <View className="flex-row">
                 <Image
@@ -84,7 +140,7 @@ const EventCancel = () => {
         <View className="flex justify-center items-center">
           <TouchableOpacity
             className="flex items-center justify-center bg-primary-red p-3 px-6 rounded-full w-5/6"
-            onPress={navigateToEvents}
+            onPress={handleCancelParticipation}
           >
             <Text className="font-sans text-lg text-primary-beige">
               Oui, je souhaite annuler

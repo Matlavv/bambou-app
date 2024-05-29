@@ -1,6 +1,14 @@
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import React from "react";
+import { getAuth } from "firebase/auth";
+import {
+  arrayUnion,
+  doc,
+  getDoc,
+  getFirestore,
+  updateDoc,
+} from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   Modal,
@@ -13,13 +21,80 @@ import {
 import MapView from "react-native-maps";
 import { profilePic } from "../../assets";
 import InviteYourFriends from "../../components/Sections/InviteYourFriends";
+import { app } from "../../firebaseConfig";
 
 const JoinEventsModal = ({ visible, onRequestClose, event }) => {
+  const [organizerName, setOrganizerName] = useState("");
+  const [organizerProfilePic, setOrganizerProfilePic] = useState("");
+  const [isOwner, setIsOwner] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState(false);
   const navigation = useNavigation();
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-  const navigateToRegisterConfirmation = () => {
+  useEffect(() => {
+    const fetchOrganizerDetails = async () => {
+      if (event.userId) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", event.userId));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setOrganizerName(userData.firstName || "Organisateur");
+            setOrganizerProfilePic(userData.profilePic || "");
+          }
+        } catch (error) {
+          console.error("Error fetching organizer details: ", error);
+        }
+      }
+    };
+
+    const checkIfOwnerOrEnrolled = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        setIsOwner(user.uid === event.userId);
+        setIsEnrolled(
+          event.participants && event.participants.includes(user.uid)
+        );
+      }
+    };
+
+    if (visible) {
+      fetchOrganizerDetails();
+      checkIfOwnerOrEnrolled();
+    }
+  }, [event.userId, event.participants, visible]);
+
+  const navigateToRegisterConfirmation = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+      const userDoc = doc(db, "users", user.uid);
+      const eventDoc = doc(db, "events", event.id);
+
+      await updateDoc(userDoc, {
+        enrolledEvents: arrayUnion(event.id),
+      });
+
+      await updateDoc(eventDoc, {
+        participants: arrayUnion(user.uid),
+      });
+
+      onRequestClose();
+      navigation.navigate("EventRegisterConfirmation");
+    } catch (error) {
+      console.error("Error joining event: ", error);
+    }
+  };
+
+  const handleCancelParticipation = () => {
     onRequestClose();
-    navigation.navigate("EventRegisterConfirmation");
+    navigation.navigate("EventCancel", { eventId: event.id });
+  };
+
+  const handleDeleteEvent = () => {
+    onRequestClose();
+    navigation.navigate("CancelCreatedEvent", { eventId: event.id });
   };
 
   return (
@@ -40,47 +115,38 @@ const JoinEventsModal = ({ visible, onRequestClose, event }) => {
           <Text className="text-4xl text-primary-green font-wakExtraBold mx-4 mt-10">
             {event.title}
           </Text>
-          {/* participants */}
           <View className="bg-secondary-beige p-1 rounded-full w-1/3 m-3">
             <Text className="text-base text-primary-green font-sansBold p-1">
-              {event.participants} participants
+              {event.participants ? event.participants.length : 0} participants
             </Text>
           </View>
-          {/* Pictures of participating people */}
           <View className="flex-row m-4 items-center justify-between">
             <View className="flex-row">
-              <Image
-                source={profilePic}
-                className="w-12 h-12 rounded-full z-10"
-                alt="profile picture"
-              />
-              <Image
-                source={profilePic}
-                className="w-12 h-12 rounded-full -ml-4 z-10"
-                alt="profile picture"
-              />
-              <Image
-                source={profilePic}
-                className="w-12 h-12 rounded-full -ml-4 z-10"
-                alt="profile picture"
-              />
-              <Image
-                source={profilePic}
-                className="w-12 h-12 rounded-full -ml-4 z-10"
-                alt="profile picture"
-              />
-              <Text className="m-2 text-primary-green font-sansBold text-lg ">
-                + 5 autres
-              </Text>
+              {[...Array(4)].map((_, index) => (
+                <Image
+                  key={index}
+                  source={profilePic}
+                  className={`w-12 h-12 rounded-full ${
+                    index > 0 ? "-ml-4" : ""
+                  } z-10`}
+                  alt="profile picture"
+                />
+              ))}
+              {event.participants && event.participants.length > 4 && (
+                <Text className="m-2 text-primary-green font-sansBold text-lg ">
+                  + {event.participants.length - 4} autres
+                </Text>
+              )}
             </View>
           </View>
           <Text className="text-xl text-primary-green font-sans mx-4">
             {event.date}
           </Text>
-          {/* Organisator */}
           <View className="flex-row m-4 items-center bg-primary-green rounded-xl p-3">
             <Image
-              source={profilePic}
+              source={
+                organizerProfilePic ? { uri: organizerProfilePic } : profilePic
+              }
               className="w-16 h-16 rounded-full z-10"
               alt="profile picture"
             />
@@ -89,21 +155,16 @@ const JoinEventsModal = ({ visible, onRequestClose, event }) => {
                 Organisateur(trice)
               </Text>
               <Text className="text-base text-primary-beige font-sans">
-                {event.organisator}
+                {organizerName}
               </Text>
               <Text className="text-primary-beige font-sansBold">
                 Ecologiste engagé
               </Text>
             </View>
           </View>
-          {/* Description */}
           <Text className="text-primary-green font-sansBold mx-4">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Officiis
-            adipisci dolorum, recusandae similique modi nihil exercitationem
-            incidunt provident debitis? Fugiat ratione sunt culpa quia eveniet
-            magni optio molestiae porro quos?
+            {event.description}
           </Text>
-          {/* Address & map */}
           <View className="flex-row m-4 items-center bg-secondary-beige rounded-xl p-3">
             <Ionicons name="location-outline" size={24} color="#005B41" />
             <Text className="text-primary-green font-sansBold text-lg ml-2">
@@ -127,16 +188,42 @@ const JoinEventsModal = ({ visible, onRequestClose, event }) => {
             </Text>
           </View>
           <InviteYourFriends />
-          <View className="flex justify-center items-center mt-7 mb-10">
-            <TouchableOpacity
-              className="flex items-center justify-center bg-primary-yellow p-3 px-6 rounded-full w-5/6"
-              onPress={navigateToRegisterConfirmation}
-            >
-              <Text className="font-sans text-lg text-primary-beige">
-                Je participe !
-              </Text>
-            </TouchableOpacity>
-          </View>
+          {!isOwner && !isEnrolled && (
+            <View className="flex justify-center items-center mt-7 mb-10">
+              <TouchableOpacity
+                className="flex items-center justify-center bg-primary-yellow p-3 px-6 rounded-full w-5/6"
+                onPress={navigateToRegisterConfirmation}
+              >
+                <Text className="font-sans text-lg text-primary-beige">
+                  Je participe !
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          {isEnrolled && !isOwner && (
+            <View className="flex justify-center items-center mt-7 mb-10">
+              <TouchableOpacity
+                className="flex items-center justify-center w-5/6"
+                onPress={handleCancelParticipation}
+              >
+                <Text className="font-sans text-primary-red">
+                  Je ne souhaite plus participer à cet événement
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          {isOwner && (
+            <View className="flex justify-center items-center mt-7 mb-10">
+              <TouchableOpacity
+                className="flex items-center justify-center w-5/6"
+                onPress={handleDeleteEvent}
+              >
+                <Text className="font-sans text-lg text-primary-red">
+                  Je souhaite supprimer cet événement
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </ScrollView>
       </SafeAreaView>
     </Modal>

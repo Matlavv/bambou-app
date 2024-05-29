@@ -1,7 +1,16 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { getAuth } from "firebase/auth";
 import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+} from "firebase/firestore";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  Alert,
   Image,
   ScrollView,
   Text,
@@ -10,51 +19,56 @@ import {
   View,
 } from "react-native";
 import { profilePic } from "../../assets";
+import { app } from "../../firebaseConfig";
 import CreateEventModal from "../../screens/Events/CreateEventModal";
 import JoinEventsModal from "../../screens/Events/JoinEventsModal";
-
-const data = [
-  {
-    id: 1,
-    title: "Ramassage de dechets",
-    date: "Dimanche 28 avril de 12h à 17h",
-    location: "Antibes, France",
-    participants: "26",
-    organisator: "Pierre Dupont",
-    address: "12 rue des fleurs, 06600 Antibes",
-    latitude: 43.5804,
-    longitude: 7.1236,
-  },
-
-  {
-    id: 2,
-    title: "Plantation d'arbres",
-    date: "Samedi 27 avril de 17h à 19h",
-    location: "Narbonne, France",
-    participants: "100",
-    organisator: "Pierre Dupont",
-    address: "12 rue des fleurs, 06600 Antibes",
-    latitude: 43.5804,
-    longitude: 7.1236,
-  },
-  {
-    id: 3,
-    title: "Nettoyage de plage",
-    date: "Dimanche 28 avril de 9h à 12h",
-    location: "Narbonne, France",
-    participants: "1500",
-    organisator: "Pierre Dupont",
-    address: "12 rue des fleurs, 06600 Antibes",
-    latitude: 43.5804,
-    longitude: 7.1236,
-  },
-];
 
 function AllEvents() {
   const [modalVisible, setModalVisible] = useState(false);
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [isCertified, setIsCertified] = useState(false);
   const navigation = useNavigation();
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  const user = auth.currentUser;
+
+  const fetchEvents = async () => {
+    try {
+      const eventsCollection = collection(db, "events");
+      const eventsSnapshot = await getDocs(eventsCollection);
+      const eventsList = eventsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setEvents(eventsList);
+    } catch (error) {
+      console.error("Error fetching events: ", error);
+    }
+  };
+
+  const fetchUserDetails = async () => {
+    if (user) {
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        setIsCertified(userData.isCertified);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+    fetchUserDetails();
+  }, [user]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchEvents();
+    }, [])
+  );
 
   const openModal = (event) => {
     setSelectedEvent(event);
@@ -66,7 +80,14 @@ function AllEvents() {
   };
 
   const openCreateModal = () => {
-    setCreateModalVisible(true);
+    if (isCertified) {
+      setCreateModalVisible(true);
+    } else {
+      Alert.alert(
+        "Accès refusé",
+        "Vous devez être certifié pour créer un événement."
+      );
+    }
   };
 
   const closeCreateModal = () => {
@@ -74,7 +95,7 @@ function AllEvents() {
   };
 
   const getBackgroundColor = (index) => {
-    switch (index) {
+    switch (index % 3) {
       case 0:
         return "bg-primary-red";
       case 1:
@@ -84,6 +105,14 @@ function AllEvents() {
       default:
         return "bg-primary-green";
     }
+  };
+
+  const extractCityCountry = (address) => {
+    const parts = address.split(",");
+    if (parts.length < 2) return address;
+    const city = parts[parts.length - 2].trim();
+    const country = parts[parts.length - 1].trim();
+    return `${city}, ${country}`;
   };
 
   return (
@@ -110,7 +139,7 @@ function AllEvents() {
         </TouchableOpacity>
       </View>
 
-      {data.map((event, index) => (
+      {events.map((event, index) => (
         <TouchableOpacity
           key={event.id}
           className={`${getBackgroundColor(
@@ -127,7 +156,7 @@ function AllEvents() {
               className="text-primary-green font-sansBold text-lg"
               numberOfLines={1}
             >
-              {event.location}
+              {extractCityCountry(event.address)}
             </Text>
           </View>
           <Text className="text-primary-beige font-sans text-lg mt-2">

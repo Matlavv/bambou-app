@@ -6,7 +6,7 @@ import { profilePic } from "../../assets";
 const data = [
   {
     id: 1,
-    title: "Ramassage de caca",
+    title: "Ramassage de dechets",
     date: "Dimanche 28 avril de 12h à 17h",
     location: "Antibes, France",
   },

@@ -1,32 +1,54 @@
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
-import { Image, Text, View } from "react-native";
+import {
+  collection,
+  getDocs,
+  getFirestore,
+  limit,
+  orderBy,
+  query,
+} from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import { profilePic } from "../../assets";
-
-const data = [
-  {
-    id: 1,
-    title: "Ramassage de dechets",
-    date: "Dimanche 28 avril de 12h à 17h",
-    location: "Antibes, France",
-  },
-  {
-    id: 2,
-    title: "Plantation d'arbres",
-    date: "Samedi 27 avril de 17h à 19h",
-    location: "Narbonne, France",
-  },
-  {
-    id: 3,
-    title: "Nettoyage de plage",
-    date: "Dimanche 28 avril de 9h à 12h",
-    location: "Narbonne, France",
-  },
-];
+import { app } from "../../firebaseConfig"; // Assurez-vous que vous importez correctement votre configuration Firebase
+import JoinEventsModal from "../../screens/Events/JoinEventsModal";
 
 const UpcomingEvents = () => {
+  const [events, setEvents] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const db = getFirestore(app);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const eventsRef = collection(db, "events");
+        const q = query(eventsRef, orderBy("date"), limit(3)); // Assurez-vous que le champ "date" existe et est correctement formaté dans Firestore
+        const querySnapshot = await getDocs(q);
+        const eventsList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setEvents(eventsList);
+      } catch (error) {
+        console.error("Error fetching events: ", error);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  const openModal = (event) => {
+    setSelectedEvent(event);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
   const getBackgroundColor = (index) => {
-    switch (index) {
+    switch (index % 3) {
       case 0:
         return "bg-primary-red";
       case 1:
@@ -40,10 +62,11 @@ const UpcomingEvents = () => {
 
   return (
     <View className="mt-5">
-      {data.map((event, index) => (
-        <View
+      {events.map((event, index) => (
+        <TouchableOpacity
           key={event.id}
           className={`${getBackgroundColor(index)} m-3 mx-5 p-4 rounded-xl`}
+          onPress={() => openModal(event)}
         >
           <Text className="text-primary-beige font-sans text-2xl">
             {event.title}
@@ -54,11 +77,13 @@ const UpcomingEvents = () => {
               className="text-primary-green font-sansBold text-lg"
               numberOfLines={1}
             >
-              {event.location}
+              {event.address}{" "}
+              {/* Assurez-vous que l'adresse est dans les données de l'événement */}
             </Text>
           </View>
           <Text className="text-primary-beige font-sans text-lg mt-2">
-            {event.date}
+            {event.date}{" "}
+            {/* Assurez-vous que la date est dans les données de l'événement */}
           </Text>
           {/* Pictures of participating people */}
           <View className="flex-row mt-4 items-center justify-between">
@@ -88,8 +113,15 @@ const UpcomingEvents = () => {
               <Ionicons name="bookmark-outline" size={24} color="#FF8F00" />
             </View>
           </View>
-        </View>
+        </TouchableOpacity>
       ))}
+      {selectedEvent && (
+        <JoinEventsModal
+          visible={modalVisible}
+          onRequestClose={closeModal}
+          event={selectedEvent}
+        />
+      )}
     </View>
   );
 };

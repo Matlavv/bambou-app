@@ -202,8 +202,14 @@ const JoinEventsModal = ({ visible, onRequestClose, event }) => {
           )}
           {isEnrolled && !isOwner && (
             <View className="flex justify-center items-center mt-7 mb-10">
+              <TouchableOpacity className="flex-row items-center justify-center w-5/6 rounded-full bg-primary-yellow p-4">
+                <Text className="font-sans text-primary-beige text-xl mr-3">
+                  Accès au QR Code
+                </Text>
+                <Ionicons name="qr-code" size={24} color="#FFF3E6" />
+              </TouchableOpacity>
               <TouchableOpacity
-                className="flex items-center justify-center w-5/6"
+                className="flex items-center justify-center w-5/6 mt-4"
                 onPress={handleCancelParticipation}
               >
                 <Text className="font-sans text-primary-red">
@@ -214,12 +220,18 @@ const JoinEventsModal = ({ visible, onRequestClose, event }) => {
           )}
           {isOwner && (
             <View className="flex justify-center items-center mt-7 mb-10">
+              <TouchableOpacity className="flex-row items-center justify-center w-5/6 rounded-full bg-primary-yellow p-4">
+                <Text className="font-sans text-primary-beige text-xl mr-3">
+                  Accès au QR Code
+                </Text>
+                <Ionicons name="qr-code" size={24} color="#FFF3E6" />
+              </TouchableOpacity>
               <TouchableOpacity
-                className="flex items-center justify-center w-5/6"
+                className="flex items-center justify-center w-5/6 mt-4"
                 onPress={handleDeleteEvent}
               >
-                <Text className="font-sans text-lg text-primary-red">
-                  Je souhaite supprimer cet événement
+                <Text className="font-sansBold text-xl text-secondary-yellow">
+                  Modifier l'évènement
                 </Text>
               </TouchableOpacity>
             </View>

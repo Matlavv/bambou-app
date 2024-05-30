@@ -4,7 +4,6 @@ Flou sur l'ouverture d'une modale
 
 
 Events
-  Lister les events à venir auxquels on est inscrit et qu'on à crées.
   Pouvoir sauvegarder et afficher les events sauvegardés
   Page d'accueil, afficher 3 events à venir
   Pouvoir modifier les informations d'un event qu'on à créé

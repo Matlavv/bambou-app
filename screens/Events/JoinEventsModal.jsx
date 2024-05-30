@@ -21,14 +21,14 @@ import MapView from "react-native-maps";
 import { profilePic } from "../../assets";
 import InviteYourFriends from "../../components/Sections/InviteYourFriends";
 import { app } from "../../firebaseConfig";
-import UpdateCreatedEvent from "./UpdateCreatedEvent"; // Assurez-vous que le chemin est correct
+import UpdateCreatedEvent from "./UpdateCreatedEvent";
 
 const JoinEventsModal = ({ visible, onRequestClose, event }) => {
   const [organizerName, setOrganizerName] = useState("");
   const [organizerProfilePic, setOrganizerProfilePic] = useState("");
   const [isOwner, setIsOwner] = useState(false);
   const [isEnrolled, setIsEnrolled] = useState(false);
-  const [updateModalVisible, setUpdateModalVisible] = useState(false); // State pour la modale de mise à jour
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const auth = getAuth(app);
   const db = getFirestore(app);
 
@@ -93,7 +93,7 @@ const JoinEventsModal = ({ visible, onRequestClose, event }) => {
   };
 
   const handleUpdateEvent = () => {
-    setUpdateModalVisible(true); // Affichez la modale de mise à jour
+    setUpdateModalVisible(true);
   };
 
   return (

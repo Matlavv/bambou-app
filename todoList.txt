@@ -1,8 +1,6 @@
 Informations des associations
-Stocker la liste des donations effectuées pour chaque user
 Flou sur l'ouverture d'une modale
 
 
 Events
   Pouvoir sauvegarder et afficher les events sauvegardés
-  Pouvoir modifier les informations d'un event qu'on à créé

@@ -36,7 +36,7 @@ const CreateEventModal = ({ visible, onRequestClose }) => {
     setQuery(text);
     const apiKey = "AIzaSyBrgCAKdx3cl9ViP-4XhtsK3kp1gKmo9GY";
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${text}&key=${apiKey}`
+      `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${text}&components=country:fr&key=${apiKey}`
     );
     const json = await response.json();
     setPredictions(json.predictions);
@@ -49,6 +49,18 @@ const CreateEventModal = ({ visible, onRequestClose }) => {
     );
     const json = await response.json();
     const place = json.result;
+
+    // Vérifiez si l'adresse est en France
+    const isInFrance = place.address_components.some(
+      (component) =>
+        component.types.includes("country") && component.short_name === "FR"
+    );
+
+    if (!isInFrance) {
+      Alert.alert("Erreur", "L'adresse sélectionnée doit être en France.");
+      return;
+    }
+
     setSelectedPlace({
       address: place.formatted_address,
       latitude: place.geometry.location.lat,
@@ -72,6 +84,12 @@ const CreateEventModal = ({ visible, onRequestClose }) => {
       return;
     }
 
+    // Vérifier si l'adresse est en France
+    if (!selectedPlace.address.includes("France")) {
+      Alert.alert("Erreur", "L'adresse de l'événement doit être en France.");
+      return;
+    }
+
     try {
       await addDoc(collection(db, "events"), {
         title,
@@ -84,6 +102,7 @@ const CreateEventModal = ({ visible, onRequestClose }) => {
         participants: [],
         latitude: selectedPlace.latitude,
         longitude: selectedPlace.longitude,
+        isActive: true,
       });
       onRequestClose();
       navigateToCreateEventConfirmation();

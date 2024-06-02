@@ -16,6 +16,7 @@ export default {
       supportsTablet: true,
     },
     android: {
+      package: "fr.bambouapp.bambou",
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#ffffff",

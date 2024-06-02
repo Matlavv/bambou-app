@@ -2,7 +2,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { useNavigation } from "@react-navigation/native";
 import { getAuth } from "firebase/auth";
-import { addDoc, collection, getFirestore } from "firebase/firestore";
+import {
+  Timestamp,
+  addDoc,
+  collection,
+  getFirestore,
+} from "firebase/firestore";
 import React, { useState } from "react";
 import {
   Alert,
@@ -34,7 +39,7 @@ const CreateEventModal = ({ visible, onRequestClose }) => {
 
   const handleAddressChange = async (text) => {
     setQuery(text);
-    const apiKey = "AIzaSyBrgCAKdx3cl9ViP-4XhtsK3kp1gKmo9GY";
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
     const response = await fetch(
       `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${text}&components=country:fr&key=${apiKey}`
     );
@@ -43,7 +48,7 @@ const CreateEventModal = ({ visible, onRequestClose }) => {
   };
 
   const handlePredictionSelect = async (placeId) => {
-    const apiKey = "AIzaSyBrgCAKdx3cl9ViP-4XhtsK3kp1gKmo9GY";
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
     const response = await fetch(
       `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${apiKey}`
     );
@@ -103,6 +108,8 @@ const CreateEventModal = ({ visible, onRequestClose }) => {
         latitude: selectedPlace.latitude,
         longitude: selectedPlace.longitude,
         isActive: true,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
       });
       onRequestClose();
       navigateToCreateEventConfirmation();

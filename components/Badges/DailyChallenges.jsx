@@ -205,7 +205,7 @@ const DailyChallenges = () => {
               onPress={() => handleCompleteChallenge(challenge)}
             >
               <Text className="text-primary-beige font-wakBold text-lg">
-                {challenge.credits}
+                + {challenge.credits}
               </Text>
               <Image source={credits} alt="credits" className="w-4 h-4 ml-2" />
             </TouchableOpacity>

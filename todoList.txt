@@ -4,3 +4,9 @@ Flou sur l'ouverture d'une modale
 
 Events
   Pouvoir sauvegarder et afficher les events sauvegardés
+  key API google en .env
+
+
+   ERROR  The action 'NAVIGATE' with payload {"name":"AuthenticatedApp"} was not handled by any navigator.
+
+Do you have a screen named 'AuthenticatedApp'? lors de la connexion

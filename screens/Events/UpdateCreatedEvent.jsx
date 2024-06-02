@@ -50,7 +50,7 @@ const UpdateCreatedEvent = ({ visible, onRequestClose, event }) => {
 
   const handleAddressChange = async (text) => {
     setQuery(text);
-    const apiKey = "AIzaSyBrgCAKdx3cl9ViP-4XhtsK3kp1gKmo9GY";
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
     const response = await fetch(
       `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${text}&components=country:fr&key=${apiKey}`
     );
@@ -59,7 +59,7 @@ const UpdateCreatedEvent = ({ visible, onRequestClose, event }) => {
   };
 
   const handlePredictionSelect = async (placeId) => {
-    const apiKey = "AIzaSyBrgCAKdx3cl9ViP-4XhtsK3kp1gKmo9GY";
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
     const response = await fetch(
       `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${apiKey}`
     );

@@ -5,6 +5,7 @@ import * as Font from "expo-font";
 import React, { useEffect, useState } from "react";
 import { Image, Text, View } from "react-native";
 import { AuthContext, AuthProvider } from "./AuthContext";
+import { BookmarkProvider } from "./BookmarkContext";
 import {
   articles,
   articlesBeige,
@@ -151,13 +152,15 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <NavigationContainer theme={MyTheme}>
-        <AuthContext.Consumer>
-          {({ isAuthenticated }) =>
-            isAuthenticated ? <AuthenticatedApp /> : <AuthStack />
-          }
-        </AuthContext.Consumer>
-      </NavigationContainer>
+      <BookmarkProvider>
+        <NavigationContainer theme={MyTheme}>
+          <AuthContext.Consumer>
+            {({ isAuthenticated }) =>
+              isAuthenticated ? <AuthenticatedApp /> : <AuthStack />
+            }
+          </AuthContext.Consumer>
+        </NavigationContainer>
+      </BookmarkProvider>
     </AuthProvider>
   );
 }

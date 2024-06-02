@@ -2,11 +2,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { getAuth } from "firebase/auth";
 import {
+  arrayRemove,
+  arrayUnion,
   collection,
   doc,
   getDoc,
   getDocs,
-  getFirestore,
+  updateDoc,
 } from "firebase/firestore";
 import React, { useCallback, useEffect, useState } from "react";
 import {
@@ -19,7 +21,7 @@ import {
   View,
 } from "react-native";
 import { profilePic } from "../../assets";
-import { app } from "../../firebaseConfig";
+import { app, db } from "../../firebaseConfig";
 import CreateEventModal from "../../screens/Events/CreateEventModal";
 import JoinEventsModal from "../../screens/Events/JoinEventsModal";
 
@@ -28,9 +30,10 @@ function AllEvents() {
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [events, setEvents] = useState([]);
+  const [bookmarkedEvents, setBookmarkedEvents] = useState([]);
   const [isCertified, setIsCertified] = useState(false);
+  const [showBookmarked, setShowBookmarked] = useState(false);
   const navigation = useNavigation();
-  const db = getFirestore(app);
   const auth = getAuth(app);
   const user = auth.currentUser;
 
@@ -55,6 +58,7 @@ function AllEvents() {
       if (userDoc.exists()) {
         const userData = userDoc.data();
         setIsCertified(userData.isCertified);
+        setBookmarkedEvents(userData.bookmarkedEvents || []);
       }
     }
   };
@@ -67,6 +71,7 @@ function AllEvents() {
   useFocusEffect(
     useCallback(() => {
       fetchEvents();
+      fetchUserDetails(); // Update user details on focus
     }, [])
   );
 
@@ -115,6 +120,35 @@ function AllEvents() {
     return `${city}, ${country}`;
   };
 
+  const toggleBookmark = async (eventId) => {
+    const userDocRef = doc(db, "users", user.uid);
+    const isBookmarked = bookmarkedEvents.includes(eventId);
+
+    try {
+      if (isBookmarked) {
+        await updateDoc(userDocRef, {
+          bookmarkedEvents: arrayRemove(eventId),
+        });
+        setBookmarkedEvents((prev) => prev.filter((id) => id !== eventId));
+      } else {
+        await updateDoc(userDocRef, {
+          bookmarkedEvents: arrayUnion(eventId),
+        });
+        setBookmarkedEvents((prev) => [...prev, eventId]);
+      }
+    } catch (error) {
+      console.error("Error updating bookmarks: ", error);
+    }
+  };
+
+  const filteredEvents = showBookmarked
+    ? events.filter((event) => bookmarkedEvents.includes(event.id))
+    : events;
+
+  const toggleShowBookmarked = () => {
+    setShowBookmarked(!showBookmarked);
+  };
+
   return (
     <ScrollView className="mt-5">
       {/* Search bar */}
@@ -134,12 +168,20 @@ function AllEvents() {
             onPress={openCreateModal}
           />
         </TouchableOpacity>
-        <TouchableOpacity className="p-4 bg-primary-yellow rounded-full mx-1">
-          <Ionicons name="bookmark-outline" size={24} color="#FFF0E1" />
+        {/* filter les events bookmarkés */}
+        <TouchableOpacity
+          className="p-4 bg-primary-yellow rounded-full mx-1"
+          onPress={toggleShowBookmarked}
+        >
+          <Ionicons
+            name={showBookmarked ? "bookmark-sharp" : "bookmark-outline"}
+            size={24}
+            color="#FFF0E1"
+          />
         </TouchableOpacity>
       </View>
 
-      {events.map((event, index) => (
+      {filteredEvents.map((event, index) => (
         <TouchableOpacity
           key={event.id}
           className={`${getBackgroundColor(
@@ -186,9 +228,21 @@ function AllEvents() {
                 alt="profile picture"
               />
             </View>
-            <View className="rounded-full bg-primary-beige p-2">
-              <Ionicons name="bookmark-outline" size={24} color="#FF8F00" />
-            </View>
+            {/* Bookmarks an event */}
+            <TouchableOpacity
+              className="rounded-full bg-primary-beige p-2"
+              onPress={() => toggleBookmark(event.id)}
+            >
+              <Ionicons
+                name={
+                  bookmarkedEvents.includes(event.id)
+                    ? "bookmark-sharp"
+                    : "bookmark-outline"
+                }
+                size={24}
+                color="#FF8F00"
+              />
+            </TouchableOpacity>
           </View>
         </TouchableOpacity>
       ))}

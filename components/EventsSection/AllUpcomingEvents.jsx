@@ -12,13 +12,13 @@ import React, { useCallback, useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { profilePic } from "../../assets";
 import { app } from "../../firebaseConfig";
-import JoinEventsModal from "../../screens/Events/JoinEventsModal";
 
 const AllUpcomingEvents = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [createdEvents, setCreatedEvents] = useState([]);
   const [enrolledEvents, setEnrolledEvents] = useState([]);
+  const [bookmarkedEvents, setBookmarkedEvents] = useState([]);
   const auth = getAuth(app);
   const db = getFirestore(app);
   const user = auth.currentUser;
@@ -54,6 +54,20 @@ const AllUpcomingEvents = () => {
                 });
               }
             }
+          }
+          // Fetch bookmarked events
+          if (userData.bookmarkedEvents) {
+            const bookmarkedEventsList = [];
+            for (const eventId of userData.bookmarkedEvents) {
+              const eventDoc = await getDoc(doc(db, "events", eventId));
+              if (eventDoc.exists()) {
+                bookmarkedEventsList.push({
+                  id: eventDoc.id,
+                  ...eventDoc.data(),
+                });
+              }
+            }
+            setBookmarkedEvents(bookmarkedEventsList);
           }
         }
 
@@ -136,9 +150,20 @@ const AllUpcomingEvents = () => {
             alt="profile picture"
           />
         </View>
-        <View className="rounded-full bg-primary-beige p-2">
-          <Ionicons name="bookmark-outline" size={24} color="#FF8F00" />
-        </View>
+        <TouchableOpacity
+          className="rounded-full bg-primary-beige p-2"
+          onPress={() => toggleBookmark(event.id)}
+        >
+          <Ionicons
+            name={
+              bookmarkedEvents.some((e) => e.id === event.id)
+                ? "bookmark-sharp"
+                : "bookmark-outline"
+            }
+            size={24}
+            color="#FF8F00"
+          />
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -152,14 +177,6 @@ const AllUpcomingEvents = () => {
       <Text className="text-xl font-sans mx-5 my-2 text-primary-green">
         Évènements à venir
       </Text>
-      {enrolledEvents.map(renderEvent)}
-      {selectedEvent && (
-        <JoinEventsModal
-          visible={modalVisible}
-          onRequestClose={closeModal}
-          event={selectedEvent}
-        />
-      )}
     </ScrollView>
   );
 };

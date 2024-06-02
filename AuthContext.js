@@ -1,8 +1,7 @@
 import { getAuth } from "firebase/auth";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { createContext, useEffect, useState } from "react";
-import { app } from "./firebaseConfig";
-
+import { app, db } from "./firebaseConfig";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -11,7 +10,6 @@ export const AuthProvider = ({ children }) => {
   const [userInfo, setUserInfo] = useState(null);
 
   const auth = getAuth(app);
-  const db = getFirestore(app);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -25,7 +23,7 @@ export const AuthProvider = ({ children }) => {
           }
         });
       } else {
-        setUserInfo(null); // Assurez-vous que userInfo est null si aucun utilisateur n'est connecté
+        setUserInfo(null);
       }
     });
 

@@ -17,7 +17,7 @@ const Login = () => {
   const handleLogin = () => {
     signInWithEmailAndPassword(auth, username, password)
       .then(() => {
-        navigation.navigate("AuthenticatedApp");
+        console.log("User logged in");
       })
       .catch((error) => {
         setError("Identifiants ou mot de passe incorrects");

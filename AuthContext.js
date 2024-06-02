@@ -24,6 +24,8 @@ export const AuthProvider = ({ children }) => {
             setUserInfo(doc.data());
           }
         });
+      } else {
+        setUserInfo(null); // Assurez-vous que userInfo est null si aucun utilisateur n'est connecté
       }
     });
 
@@ -35,7 +37,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signOut = () => {
-    auth.signOut().then(() => {
+    return auth.signOut().then(() => {
       setCurrentUser(null);
       setIsAuthenticated(false);
       setUserInfo(null);

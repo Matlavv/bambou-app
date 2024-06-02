@@ -1,3 +1,4 @@
+import { GOOGLE_PLACES_API_KEY } from "@env";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { useNavigation } from "@react-navigation/native";
@@ -39,23 +40,21 @@ const CreateEventModal = ({ visible, onRequestClose }) => {
 
   const handleAddressChange = async (text) => {
     setQuery(text);
-    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${text}&components=country:fr&key=${apiKey}`
+      `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${text}&components=country:fr&key=${GOOGLE_PLACES_API_KEY}`
     );
     const json = await response.json();
     setPredictions(json.predictions);
   };
 
   const handlePredictionSelect = async (placeId) => {
-    const apiKey = process.env.GOOGLE_PLACES_API_KEY;
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${apiKey}`
+      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${GOOGLE_PLACES_API_KEY}`
     );
     const json = await response.json();
     const place = json.result;
 
-    // Vérifiez si l'adresse est en France
+    // Vérifier si l'adresse est en France
     const isInFrance = place.address_components.some(
       (component) =>
         component.types.includes("country") && component.short_name === "FR"
@@ -132,8 +131,9 @@ const CreateEventModal = ({ visible, onRequestClose }) => {
         >
           <View className="bg-primary-beige flex-1">
             <TouchableOpacity
-              className="absolute right-2 p-3"
+              className="absolute right-2 top-2 p-3 z-50"
               onPress={onRequestClose}
+              pointerEvents="auto"
             >
               <Ionicons name="close" size={42} color="#005B41" />
             </TouchableOpacity>

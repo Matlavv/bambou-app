@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as Font from "expo-font";
 import React, { useEffect, useState } from "react";
 import { Image, Text, View } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthContext, AuthProvider } from "./AuthContext";
 import { BookmarkProvider } from "./BookmarkContext";
 import {
@@ -151,16 +152,18 @@ export default function App() {
   }
 
   return (
-    <AuthProvider>
-      <BookmarkProvider>
-        <NavigationContainer theme={MyTheme}>
-          <AuthContext.Consumer>
-            {({ isAuthenticated }) =>
-              isAuthenticated ? <AuthenticatedApp /> : <AuthStack />
-            }
-          </AuthContext.Consumer>
-        </NavigationContainer>
-      </BookmarkProvider>
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <BookmarkProvider>
+          <NavigationContainer theme={MyTheme}>
+            <AuthContext.Consumer>
+              {({ isAuthenticated }) =>
+                isAuthenticated ? <AuthenticatedApp /> : <AuthStack />
+              }
+            </AuthContext.Consumer>
+          </NavigationContainer>
+        </BookmarkProvider>
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }

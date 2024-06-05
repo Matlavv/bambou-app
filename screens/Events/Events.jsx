@@ -1,6 +1,12 @@
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { getAuth } from "firebase/auth";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+} from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView, Text, View } from "react-native";
 import ProfilePic from "../../components/Badges/ProfilePic";

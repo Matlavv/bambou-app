@@ -1,8 +1,8 @@
 export default {
   expo: {
-    name: "bambou",
+    name: "Bambou",
     slug: "bambou",
-    version: "1.0.0",
+    version: "1.0.1",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "light",
@@ -17,10 +17,13 @@ export default {
     },
     android: {
       package: "fr.bambouapp.bambou",
+      versionCode: 2,
+      permissions: ["com.google.android.gms.permission.AD_ID"],
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#ffffff",
       },
+      icon: "./assets/icon.png",
     },
     web: {
       favicon: "./assets/favicon.png",

@@ -20,7 +20,7 @@ import { app } from "../firebaseConfig";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const [username, setUsername] = useState("John Doe"); // valeur par défaut
+  const [username, setUsername] = useState("John Doe");
 
   const auth = getAuth(app);
   const db = getFirestore(app);

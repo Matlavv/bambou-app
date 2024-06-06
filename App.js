@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as Font from "expo-font";
+import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
 import { Image, Text, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -153,6 +154,11 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle="light-content"
+      />
       <AuthProvider>
         <BookmarkProvider>
           <NavigationContainer theme={MyTheme}>

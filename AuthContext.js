@@ -1,8 +1,7 @@
 import { getAuth } from "firebase/auth";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { createContext, useEffect, useState } from "react";
-import { app } from "./firebaseConfig";
-
+import { app, db } from "./firebaseConfig";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -11,7 +10,6 @@ export const AuthProvider = ({ children }) => {
   const [userInfo, setUserInfo] = useState(null);
 
   const auth = getAuth(app);
-  const db = getFirestore(app);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -24,6 +22,8 @@ export const AuthProvider = ({ children }) => {
             setUserInfo(doc.data());
           }
         });
+      } else {
+        setUserInfo(null);
       }
     });
 
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signOut = () => {
-    auth.signOut().then(() => {
+    return auth.signOut().then(() => {
       setCurrentUser(null);
       setIsAuthenticated(false);
       setUserInfo(null);

@@ -51,11 +51,6 @@ const EventRegisterConfirmation = () => {
               Trop bien !
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={navigateToEventCancel}>
-            <Text className="text-primary-yellow font-sansBold text-xl mt-4">
-              Je ne veux plus participer
-            </Text>
-          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>

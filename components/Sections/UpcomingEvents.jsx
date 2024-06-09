@@ -1,32 +1,75 @@
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
-import { Image, Text, View } from "react-native";
+import { getAuth } from "firebase/auth";
+import {
+  arrayRemove,
+  arrayUnion,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+  limit,
+  orderBy,
+  query,
+  updateDoc,
+} from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import { profilePic } from "../../assets";
-
-const data = [
-  {
-    id: 1,
-    title: "Ramassage de caca",
-    date: "Dimanche 28 avril de 12h à 17h",
-    location: "Antibes, France",
-  },
-  {
-    id: 2,
-    title: "Plantation d'arbres",
-    date: "Samedi 27 avril de 17h à 19h",
-    location: "Narbonne, France",
-  },
-  {
-    id: 3,
-    title: "Nettoyage de plage",
-    date: "Dimanche 28 avril de 9h à 12h",
-    location: "Narbonne, France",
-  },
-];
+import { app } from "../../firebaseConfig";
+import JoinEventsModal from "../../screens/Events/JoinEventsModal";
 
 const UpcomingEvents = () => {
+  const [events, setEvents] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [bookmarkedEvents, setBookmarkedEvents] = useState([]);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  const user = auth.currentUser;
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const eventsRef = collection(db, "events");
+        const q = query(eventsRef, orderBy("date"), limit(3));
+        const querySnapshot = await getDocs(q);
+        const eventsList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setEvents(eventsList);
+      } catch (error) {
+        console.error("Error fetching events: ", error);
+      }
+    };
+
+    const fetchBookmarkedEvents = async () => {
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setBookmarkedEvents(userData.bookmarkedEvents || []);
+        }
+      }
+    };
+
+    fetchEvents();
+    fetchBookmarkedEvents();
+  }, [user]);
+
+  const openModal = (event) => {
+    setSelectedEvent(event);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
   const getBackgroundColor = (index) => {
-    switch (index) {
+    switch (index % 3) {
       case 0:
         return "bg-primary-red";
       case 1:
@@ -38,12 +81,35 @@ const UpcomingEvents = () => {
     }
   };
 
+  const toggleBookmark = async (eventId) => {
+    if (!user) return;
+    const userDocRef = doc(db, "users", user.uid);
+    const isBookmarked = bookmarkedEvents.includes(eventId);
+
+    try {
+      if (isBookmarked) {
+        await updateDoc(userDocRef, {
+          bookmarkedEvents: arrayRemove(eventId),
+        });
+        setBookmarkedEvents((prev) => prev.filter((id) => id !== eventId));
+      } else {
+        await updateDoc(userDocRef, {
+          bookmarkedEvents: arrayUnion(eventId),
+        });
+        setBookmarkedEvents((prev) => [...prev, eventId]);
+      }
+    } catch (error) {
+      console.error("Error updating bookmarks: ", error);
+    }
+  };
+
   return (
     <View className="mt-5">
-      {data.map((event, index) => (
-        <View
+      {events.map((event, index) => (
+        <TouchableOpacity
           key={event.id}
           className={`${getBackgroundColor(index)} m-3 mx-5 p-4 rounded-xl`}
+          onPress={() => openModal(event)}
         >
           <Text className="text-primary-beige font-sans text-2xl">
             {event.title}
@@ -54,13 +120,12 @@ const UpcomingEvents = () => {
               className="text-primary-green font-sansBold text-lg"
               numberOfLines={1}
             >
-              {event.location}
+              {event.address}
             </Text>
           </View>
           <Text className="text-primary-beige font-sans text-lg mt-2">
             {event.date}
           </Text>
-          {/* Pictures of participating people */}
           <View className="flex-row mt-4 items-center justify-between">
             <View className="flex-row">
               <Image
@@ -84,12 +149,30 @@ const UpcomingEvents = () => {
                 alt="profile picture"
               />
             </View>
-            <View className="rounded-full bg-primary-beige p-2">
-              <Ionicons name="bookmark-outline" size={24} color="#FF8F00" />
-            </View>
+            <TouchableOpacity
+              className="rounded-full bg-primary-beige p-2"
+              onPress={() => toggleBookmark(event.id)}
+            >
+              <Ionicons
+                name={
+                  bookmarkedEvents.includes(event.id)
+                    ? "bookmark-sharp"
+                    : "bookmark-outline"
+                }
+                size={24}
+                color="#FF8F00"
+              />
+            </TouchableOpacity>
           </View>
-        </View>
+        </TouchableOpacity>
       ))}
+      {selectedEvent && (
+        <JoinEventsModal
+          visible={modalVisible}
+          onRequestClose={closeModal}
+          event={selectedEvent}
+        />
+      )}
     </View>
   );
 };

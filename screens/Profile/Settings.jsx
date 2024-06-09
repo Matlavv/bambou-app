@@ -114,7 +114,13 @@ const Settings = () => {
     }
   };
 
-  if (!userInfo) {
+  const handleSignOut = () => {
+    signOut().catch((error) => {
+      console.error("Error signing out: ", error);
+    });
+  };
+
+  if (!userInfo || !user) {
     return (
       <SafeAreaView className="flex-1 justify-center items-center">
         <Text>Loading...</Text>
@@ -256,7 +262,7 @@ const Settings = () => {
           </TouchableOpacity>
           <TouchableOpacity
             className="flex bg-secondary-beige p-3 rounded-2xl mt-2 flex-row justify-between items-center"
-            onPress={signOut}
+            onPress={handleSignOut}
           >
             <Text className="text-primary-green ml-2 text-lg font-sans">
               Déconnexion

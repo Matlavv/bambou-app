@@ -1,14 +1,64 @@
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import React from "react";
+import { getAuth } from "firebase/auth";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+} from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView, Text, View } from "react-native";
 import ProfilePic from "../../components/Badges/ProfilePic";
 import UserCredits from "../../components/Badges/UserCredits";
 import AllEvents from "../../components/EventsSection/AllEvents";
 import AllUpcomingEvents from "../../components/EventsSection/AllUpcomingEvents";
+import { app } from "../../firebaseConfig";
 
 const Tab = createMaterialTopTabNavigator();
 
 const Events = () => {
+  const [showBookmarked, setShowBookmarked] = useState(false);
+  const [bookmarkedEvents, setBookmarkedEvents] = useState([]);
+  const [events, setEvents] = useState([]);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  const user = auth.currentUser;
+
+  const fetchBookmarkedEvents = async () => {
+    if (user) {
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        setBookmarkedEvents(userData.bookmarkedEvents || []);
+      }
+    }
+  };
+
+  const fetchEvents = async () => {
+    try {
+      const eventsCollection = collection(db, "events");
+      const eventsSnapshot = await getDocs(eventsCollection);
+      const eventsList = eventsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setEvents(eventsList);
+    } catch (error) {
+      console.error("Error fetching events: ", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookmarkedEvents();
+    fetchEvents();
+  }, [user]);
+
+  const filteredEvents = showBookmarked
+    ? events.filter((event) => bookmarkedEvents.includes(event.id))
+    : events;
+
   return (
     <SafeAreaView className="flex-1">
       <View className="bg-primary-red justify-center">
@@ -47,7 +97,9 @@ const Events = () => {
           },
         }}
       >
-        <Tab.Screen name="Tous" component={AllEvents} />
+        <Tab.Screen name="Tous">
+          {() => <AllEvents events={filteredEvents} />}
+        </Tab.Screen>
         <Tab.Screen
           name="Participations à venir"
           component={AllUpcomingEvents}

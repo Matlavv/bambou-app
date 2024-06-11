@@ -6,7 +6,14 @@ import {
 } from "firebase/auth";
 import { Timestamp, doc, getFirestore, setDoc } from "firebase/firestore";
 import React, { useState } from "react";
-import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { app } from "../../firebaseConfig";
 
@@ -23,12 +30,10 @@ const SignUpName = ({ route }) => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        // Une fois que l'utilisateur est créé, mets à jour son profil avec le prénom et le pseudonyme
         updateProfile(user, {
           displayName: username,
         })
           .then(() => {
-            // Une fois que le profil est mis à jour, ajoute les informations de l'utilisateur à la base de données
             const userDoc = doc(db, "users", user.uid);
             setDoc(userDoc, {
               email: email,
@@ -47,8 +52,7 @@ const SignUpName = ({ route }) => {
               lastChallengeUpdate: Timestamp.now(),
             })
               .then(() => {
-                // Redirige l'utilisateur vers la page d'accueil
-                navigation.navigate("AuthenticatedApp");
+                console.log("Utilisateur enregistré avec succès !");
               })
               .catch((error) => {
                 console.error(
@@ -84,46 +88,48 @@ const SignUpName = ({ route }) => {
 
   return (
     <SafeAreaView className="flex-1 bg-primary-green">
-      <View className="items-center justify-center px-4 py-8 mb-3">
-        <Text className="text-5xl text-primary-beige font-wakExtraBold text-center w-64">
-          Dernière étape
-        </Text>
-        <Text className="text-xl text-primary-beige font-sansBold text-center mt-5">
-          Choisis ton pseudonyme, et c'est parti !
-        </Text>
-      </View>
-      <View className="flex bg-primary-beige h-full">
-        <View className="items-center p-12">
-          <Text className="text-primary-green font-sans text-lg self-start">
-            Prénom
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View className="items-center justify-center px-4 py-8 mb-3">
+          <Text className="text-5xl text-primary-beige font-wakExtraBold text-center w-64">
+            Dernière étape
           </Text>
-          <TextInput
-            className="font-sansBold w-80 bg-secondary-beige rounded-2xl p-4"
-            placeholder="Ton prénom"
-            onChangeText={setFirstName}
-            value={firstName}
-          />
-          <Text className="text-primary-green font-sans text-lg self-start mt-5">
-            Pseudonyme
+          <Text className="text-xl text-primary-beige font-sansBold text-center mt-5">
+            Choisis ton pseudonyme, et c'est parti !
           </Text>
-          <TextInput
-            className="font-sansBold w-80 bg-secondary-beige rounded-2xl p-4"
-            placeholder="Ton pseudo"
-            onChangeText={setUsername}
-            value={username}
-          />
         </View>
-        <View className="w-full px-12 py-12 mt-56">
-          <TouchableOpacity
-            className="bg-primary-yellow py-4 rounded-full items-center w-full"
-            onPress={createAccount}
-          >
-            <Text className="text-primary-beige text-lg font-sansBold">
-              Créer mon compte !
+        <View className="flex bg-primary-beige flex-1 justify-between">
+          <View className="items-center p-12">
+            <Text className="text-primary-green font-sans text-lg self-start">
+              Prénom
             </Text>
-          </TouchableOpacity>
+            <TextInput
+              className="font-sansBold w-80 bg-secondary-beige rounded-2xl p-4"
+              placeholder="Ton prénom"
+              onChangeText={setFirstName}
+              value={firstName}
+            />
+            <Text className="text-primary-green font-sans text-lg self-start mt-5">
+              Pseudonyme
+            </Text>
+            <TextInput
+              className="font-sansBold w-80 bg-secondary-beige rounded-2xl p-4"
+              placeholder="Ton pseudo"
+              onChangeText={setUsername}
+              value={username}
+            />
+          </View>
+          <View className="w-full px-12 py-12">
+            <TouchableOpacity
+              className="bg-primary-yellow py-4 rounded-full items-center w-full"
+              onPress={createAccount}
+            >
+              <Text className="text-primary-beige text-lg font-sansBold">
+                Créer mon compte !
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };

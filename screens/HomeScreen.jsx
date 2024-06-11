@@ -20,7 +20,7 @@ import { app } from "../firebaseConfig";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const [username, setUsername] = useState("John Doe");
+  const [username, setUsername] = useState("");
 
   const auth = getAuth(app);
   const db = getFirestore(app);
@@ -33,7 +33,7 @@ const HomeScreen = () => {
         const userSnapshot = await getDoc(userDoc);
         if (userSnapshot.exists()) {
           const userData = userSnapshot.data();
-          setUsername(userData.username || "John Doe");
+          setUsername(userData.username || "!");
         }
       }
     };

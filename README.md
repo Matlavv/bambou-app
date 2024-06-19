@@ -29,3 +29,6 @@ The project has the following dependencies:
 - Firebase
 - NativeWind
 - React Navigation
+
+## Repository of the landing page 
+[https://github.com/Matlavv/bambou](https://github.com/Matlavv/bambou)
